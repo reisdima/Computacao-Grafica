@@ -37,7 +37,14 @@ function main() {
     scene.add(line);
     //---------------------------------------------------------------------------------------
 
+    // Variáveis para auxiliar no trabalho
+    var wheels = null;
     var posicaoFinal = {
+        x: 0,
+        y: 0,
+        z: 2,
+    };
+    var rotacaoFinal = {
         x: 0,
         y: 0,
         z: 2,
@@ -127,6 +134,7 @@ function main() {
 
         var frontWheels = createWheels();
         frontWheels.position.set(2.0, 0.0, -0.5);
+
         // frontWheels.translateX(2);
         var backWheels = createWheels();
         backWheels.position.set(-2.0, 0.0, -0.5);
@@ -136,7 +144,7 @@ function main() {
         mainCube.add(backWheels);
         return {
             main: mainCube,
-            object: null,
+            object: frontWheels,
         };
     }
 
@@ -162,12 +170,18 @@ function main() {
 
         cylinder.add(leftWheel);
         cylinder.add(rightWheel);
+
         return cylinder;
     }
 
     function moveObject(object) {
         if (!object) return;
         object.position.set(posicaoFinal.x, posicaoFinal.y, posicaoFinal.z);
+        object.rotation.set(
+            degreesToRadians(rotacaoFinal.x),
+            degreesToRadians(rotacaoFinal.y),
+            degreesToRadians(rotacaoFinal.z)
+        );
     }
 
     function buildInterface(object) {
@@ -175,11 +189,19 @@ function main() {
             this.x = object ? object.position.x : 0;
             this.y = object ? object.position.y : 0;
             this.z = object ? object.position.z : 0;
+            this.rotationX = object ? object.rotation.x : 0;
+            this.rotationY = object ? object.rotation.y : 0;
+            this.rotationZ = object ? object.rotation.z : 0;
 
             this.move = function () {
                 posicaoFinal.x = this.x;
                 posicaoFinal.y = this.y;
                 posicaoFinal.z = this.z;
+            };
+            this.rotate = function () {
+                rotacaoFinal.x = this.rotationX;
+                rotacaoFinal.y = this.rotationY;
+                rotacaoFinal.z = this.rotationZ;
             };
         })();
 
@@ -191,6 +213,7 @@ function main() {
 
         // GUI interface
         var gui = new dat.GUI();
+        // Movimento
         gui.add(controls, "x", -5.0, 5.0)
             .onChange(function (e) {
                 controls.move();
@@ -206,6 +229,22 @@ function main() {
                 controls.move();
             })
             .name("Z");
+        // Rotação
+        gui.add(controls, "rotationX", 0, 359)
+            .onChange(function (e) {
+                controls.rotate();
+            })
+            .name("rotationX");
+        gui.add(controls, "rotationY", 0, 359)
+            .onChange(function (e) {
+                controls.rotate();
+            })
+            .name("rotationY");
+        gui.add(controls, "rotationZ", 0, 359)
+            .onChange(function (e) {
+                controls.rotate();
+            })
+            .name("rotationZ");
         gui.add(obj, "Botao");
     }
 
