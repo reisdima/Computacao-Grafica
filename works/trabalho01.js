@@ -15,16 +15,26 @@ function main() {
     var axesHelper = new THREE.AxesHelper(12);
     scene.add(axesHelper);
 
-    // create the ground plane
-    var planeGeometry = new THREE.PlaneGeometry(20, 20);
-    planeGeometry.translate(0.0, 0.0, -0.02); // To avoid conflict with the axeshelper
-    var planeMaterial = new THREE.MeshBasicMaterial({
-        color: "rgba(150, 150, 150)",
-        side: THREE.DoubleSide,
-    });
-    var plane = new THREE.Mesh(planeGeometry, planeMaterial);
-    // add the plane to the scene
-    scene.add(plane);
+   
+  //---------------------------------------------------------------------------------------
+  // create the ground plane with wireframe
+  var planeGeometry = new THREE.PlaneGeometry(700, 700, 40, 40);
+  planeGeometry.translate(0.0, 0.0, -0.02); // To avoid conflict with the axeshelper
+  var planeMaterial = new THREE.MeshBasicMaterial({
+      color: "rgba(20, 30, 110)",
+      side: THREE.DoubleSide,
+      polygonOffset: true,
+      polygonOffsetFactor: 1, // positive value pushes polygon further away
+      polygonOffsetUnits: 1
+  });
+  var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+  scene.add(plane);
+
+  var wireframe = new THREE.WireframeGeometry( planeGeometry );
+  var line = new THREE.LineSegments( wireframe );
+  line.material.color.setStyle( "rgb(180, 180, 180)" );  
+  scene.add(line);
+  //---------------------------------------------------------------------------------------
 
     var posicaoFinal = {
         x: 0,
@@ -103,7 +113,7 @@ function main() {
 
     function createKart() {
         var mainCube = createCube(4, 2, 1);
-        mainCube.position.set(0.0, 0.0, 1.5);
+        mainCube.position.set(0.0, 0.0, 1.25);
         
         // var cube = createCube(1, 3, 1);
         // cube.translateX(2);
