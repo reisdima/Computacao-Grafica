@@ -124,6 +124,30 @@ function main() {
         var mainCube = createCube(4, 2, 1);
         mainCube.position.set(0.0, 0.0, 1.25);
 
+
+        var frontCube = createCube(2,1,1);
+        frontCube.position.set(2.0, 0.0, -0.35);
+
+        var backCube = createCube(2,1,1);
+        backCube.position.set(-2.0, 0.0, -0.35);
+
+        mainCube.add(frontCube);
+        mainCube.add(backCube);
+
+
+        var supportFrontCube = createCube(5,1,1);
+        supportFrontCube.position.set(2.0, 0, 0);
+        supportFrontCube.rotation.set(0, 0, 800);
+
+        var supportBackCube = createCube(5,1,1);
+        supportBackCube.position.set(-6.0, 0, 0);
+        supportBackCube.rotation.set(0, 0, 800);
+
+        frontCube.add(supportFrontCube);
+
+        frontCube.add(supportBackCube);
+        
+        
         // var cube = createCube(1, 3, 1);
         // cube.translateX(2);
         // cube.translateZ(-1);
@@ -133,15 +157,17 @@ function main() {
         // cube2.translateZ(-1);
 
         var frontWheels = createWheels();
-        frontWheels.position.set(2.0, 0.0, -0.5);
+        frontWheels.position.set(0.5, -0.03, 0.0);
 
         // frontWheels.translateX(2);
         var backWheels = createWheels();
-        backWheels.position.set(-2.0, 0.0, -0.5);
+        backWheels.position.set(-0.5, -0.01, 0.0);
 
         mainCube.rotation.set(0, 0, degreesToRadians(90));
-        mainCube.add(frontWheels);
-        mainCube.add(backWheels);
+       // mainCube.add(frontWheels);
+       frontCube.add(frontWheels);
+       backCube.add(backWheels);
+       // mainCube.add(backWheels);
         return {
             main: mainCube,
             object: frontWheels,
