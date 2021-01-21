@@ -2,10 +2,22 @@ function main() {
     var stats = initStats(); // To show FPS information
     var scene = new THREE.Scene(); // Create main scene
     var renderer = initRenderer(); // View function in util/utils
-    var camera = initCamera(new THREE.Vector3(0, -30, 15)); // Init camera in this position
     var light = initDefaultLighting(scene, new THREE.Vector3(7, 7, 7));
     var clock = new THREE.Clock();
     var keyboard = new KeyboardState();
+
+    var camera = initCamera(new THREE.Vector3(0, -30, 15)); // Init camera in this position
+    var cameraPosition = new THREE.Vector3(0, -30, 15);
+    var cameraDirection = new THREE.Vector3(0, 0, 0);
+    var cameraVectorUpX = 0;
+    var cameraVectorUpY = 0;
+    var cameraVectorUpZ = 1;
+    var vectUp = {
+        x: cameraVectorUpX,
+        y: cameraVectorUpY,
+        z: cameraVectorUpZ,
+    };
+    changeCamera(cameraPosition, cameraDirection, vectUp);
 
     // Enable mouse rotation, pan, zoom etc.
     var trackballControls = new THREE.TrackballControls(
@@ -81,6 +93,7 @@ function main() {
         trackballControls.update(); // Enable mouse movements
         // lightFollowingCamera(light, camera);
         keyboardUpdate();
+        changeCamera(cameraPosition, kart.position, vectUp);
         moveObject(object);
         requestAnimationFrame(render);
         renderer.render(scene, camera); // Render scene
@@ -124,30 +137,27 @@ function main() {
         var mainCube = createCube(4, 2, 1);
         mainCube.position.set(0.0, 0.0, 1.25);
 
-
-        var frontCube = createCube(2,1,1);
+        var frontCube = createCube(2, 1, 1);
         frontCube.position.set(2.0, 0.0, -0.35);
 
-        var backCube = createCube(2,1,1);
+        var backCube = createCube(2, 1, 1);
         backCube.position.set(-2.0, 0.0, -0.35);
 
         mainCube.add(frontCube);
         mainCube.add(backCube);
 
-
-        var supportFrontCube = createCube(5,1,1);
+        var supportFrontCube = createCube(5, 1, 1);
         supportFrontCube.position.set(2.0, 0, 0);
         supportFrontCube.rotation.set(0, 0, degreesToRadians(90));
 
-        var supportBackCube = createCube(5,1,1);
+        var supportBackCube = createCube(5, 1, 1);
         supportBackCube.position.set(-6.0, 0, 0);
         supportBackCube.rotation.set(0, 0, degreesToRadians(90));
 
         frontCube.add(supportFrontCube);
 
         frontCube.add(supportBackCube);
-        
-        
+
         // var cube = createCube(1, 3, 1);
         // cube.translateX(2);
         // cube.translateZ(-1);
@@ -164,10 +174,10 @@ function main() {
         backWheels.position.set(-0.5, -0.01, 0.0);
 
         mainCube.rotation.set(0, 0, degreesToRadians(90));
-       // mainCube.add(frontWheels);
-       frontCube.add(frontWheels);
-       backCube.add(backWheels);
-       // mainCube.add(backWheels);
+        // mainCube.add(frontWheels);
+        frontCube.add(frontWheels);
+        backCube.add(backWheels);
+        // mainCube.add(backWheels);
         return {
             main: mainCube,
             object: null,
@@ -278,11 +288,34 @@ function main() {
         keyboard.update();
 
         var speed = 30;
+        var cameraStep = 0.5;
         var moveDistance = speed * clock.getDelta();
 
+        // Kart control
         if (keyboard.pressed("W")) kart.translateX(moveDistance);
         if (keyboard.pressed("S")) kart.translateX(-moveDistance);
-
+        // Reset Kart
         if (keyboard.pressed("space")) kart.position.set(0.0, 0.0, 2.0);
+
+        // Camera control
+        if (keyboard.pressed("left")) {
+            cameraPosition.add(new THREE.Vector3(-cameraStep, 0, 0));
+        }
+        if (keyboard.pressed("right")) {
+            cameraPosition.add(new THREE.Vector3(cameraStep, 0, 0));
+        }
+        if (keyboard.pressed("up")) {
+            cameraPosition.add(new THREE.Vector3(0, cameraStep, 0));
+        }
+        if (keyboard.pressed("down")) {
+            cameraPosition.add(new THREE.Vector3(0, -cameraStep, 0));
+        }
+    }
+
+    function changeCamera(position, look, up) {
+        camera.position.copy(position);
+        camera.lookAt(look);
+        camera.up.set(up.x, up.y, up.z);
+        // return camera;
     }
 }
