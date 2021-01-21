@@ -256,17 +256,17 @@ function main() {
             })
             .name("Z");
         // Rotação
-        gui.add(controls, "rotationX", 0, 359)
+        gui.add(controls, "rotationX", -180, 180)
             .onChange(function (e) {
                 controls.rotate();
             })
             .name("rotationX");
-        gui.add(controls, "rotationY", 0, 359)
+        gui.add(controls, "rotationY", -180, 180)
             .onChange(function (e) {
                 controls.rotate();
             })
             .name("rotationY");
-        gui.add(controls, "rotationZ", 0, 359)
+        gui.add(controls, "rotationZ", -180, 180)
             .onChange(function (e) {
                 controls.rotate();
             })
