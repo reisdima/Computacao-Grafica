@@ -143,27 +143,31 @@ function main() {
         var mainCube = createCube(4, 2, 1);
         mainCube.position.set(0.0, 0.0, 1.25);
 
-        var frontCube = createCube(2, 1, 1);
-        frontCube.position.set(2.0, 0.0, -0.35);
 
-        var backCube = createCube(2, 1, 1);
-        backCube.position.set(-2.0, 0.0, -0.35);
+        var frontCube = createCube(2,1,1);
+        frontCube.position.set(2.5, 0.0, -0.35);
+
+        var backCube = createCube(2,1,1);
+        backCube.position.set(-2.5, 0.0, -0.35);
 
         mainCube.add(frontCube);
         mainCube.add(backCube);
 
-        var supportFrontCube = createCube(5, 1, 1);
-        supportFrontCube.position.set(2.0, 0, 0);
+
+        var supportFrontCube = createCube(5,0.90,1);
+        supportFrontCube.position.set(1.5, 0, 0);
         supportFrontCube.rotation.set(0, 0, degreesToRadians(90));
 
-        var supportBackCube = createCube(5, 1, 1);
-        supportBackCube.position.set(-6.0, 0, 0);
+        var supportBackCube = createCube(5,1,1);
+        supportBackCube.position.set(-6.5, 0, 0);
         supportBackCube.rotation.set(0, 0, degreesToRadians(90));
 
         frontCube.add(supportFrontCube);
 
         frontCube.add(supportBackCube);
 
+               
+        
         // var cube = createCube(1, 3, 1);
         // cube.translateX(2);
         // cube.translateZ(-1);
@@ -173,17 +177,43 @@ function main() {
         // cube2.translateZ(-1);
 
         var frontWheels = createWheels();
-        frontWheels.position.set(0.5, -0.03, 0.0);
+        frontWheels.position.set(-0.40, -0.03, 0.0);
 
         // frontWheels.translateX(2);
         var backWheels = createWheels();
-        backWheels.position.set(-0.5, -0.01, 0.0);
+        backWheels.position.set(-0.01, -0.01, 0.0);
 
-        // mainCube.rotation.set(0, 0, degreesToRadians(90));
-        // mainCube.add(frontWheels);
-        frontCube.add(frontWheels);
-        backCube.add(backWheels);
-        // mainCube.add(backWheels);
+        mainCube.rotation.set(0, 0, degreesToRadians(90));
+       // mainCube.add(frontWheels);
+       frontCube.add(frontWheels);
+       backCube.add(backWheels);
+       // mainCube.add(backWheels);
+
+        //suporte aerofolio
+
+        var supAero1 = createCube(0.2,1,1);
+        supAero1.position.set(1.0,-0.001,1);
+        supportBackCube.add(supAero1);
+
+        var supAero2 = createCube(0.2,1,1);
+        supAero2.position.set(-1.0,-0.001,1);
+        supportBackCube.add(supAero2);
+
+        //aerofolio
+
+        var aero = createCube(1,0.1,5);
+        aero.position.set(-1,0,0.52);
+        aero.rotation.set(degreesToRadians(90), degreesToRadians(90), degreesToRadians(5));
+        supAero1.add(aero);
+
+
+        //bico 
+
+        var bico  = createCube(1,0.1,3);
+        bico.position.set(0,1.0,0.75);
+        bico.rotation.set(degreesToRadians(95), degreesToRadians(0), degreesToRadians(0));
+        supportFrontCube.add(bico);
+
         return {
             main: mainCube,
             object: null,
