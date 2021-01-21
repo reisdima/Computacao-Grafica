@@ -61,6 +61,11 @@ function main() {
         y: 0,
         z: 2,
     };
+    var kartRotation = {
+        x: 0,
+        y: 0,
+        z: 90,
+    };
 
     var kart = createKart();
     var object = kart.object;
@@ -93,8 +98,9 @@ function main() {
         trackballControls.update(); // Enable mouse movements
         // lightFollowingCamera(light, camera);
         keyboardUpdate();
-        changeCamera(cameraPosition, kart.position, vectUp);
+        changeCamera(kart.position, kart.position, vectUp);
         moveObject(object);
+        moveKart(object);
         requestAnimationFrame(render);
         renderer.render(scene, camera); // Render scene
     }
@@ -173,7 +179,7 @@ function main() {
         var backWheels = createWheels();
         backWheels.position.set(-0.5, -0.01, 0.0);
 
-        mainCube.rotation.set(0, 0, degreesToRadians(90));
+        // mainCube.rotation.set(0, 0, degreesToRadians(90));
         // mainCube.add(frontWheels);
         frontCube.add(frontWheels);
         backCube.add(backWheels);
@@ -217,6 +223,14 @@ function main() {
             degreesToRadians(rotacaoFinal.x),
             degreesToRadians(rotacaoFinal.y),
             degreesToRadians(rotacaoFinal.z)
+        );
+    }
+
+    function moveKart() {
+        kart.rotation.set(
+            degreesToRadians(kartRotation.x),
+            degreesToRadians(kartRotation.y),
+            degreesToRadians(kartRotation.z)
         );
     }
 
@@ -289,11 +303,14 @@ function main() {
 
         var speed = 30;
         var cameraStep = 0.5;
+        var rotationSpeed = 2;
         var moveDistance = speed * clock.getDelta();
 
         // Kart control
         if (keyboard.pressed("W")) kart.translateX(moveDistance);
         if (keyboard.pressed("S")) kart.translateX(-moveDistance);
+        if (keyboard.pressed("A")) kartRotation.z += rotationSpeed;
+        if (keyboard.pressed("D")) kartRotation.z -= rotationSpeed
         // Reset Kart
         if (keyboard.pressed("space")) kart.position.set(0.0, 0.0, 2.0);
 
@@ -313,7 +330,7 @@ function main() {
     }
 
     function changeCamera(position, look, up) {
-        camera.position.copy(position);
+        camera.position.set(position.x, position.y - 30, cameraPosition.z);
         camera.lookAt(look);
         camera.up.set(up.x, up.y, up.z);
         // return camera;
