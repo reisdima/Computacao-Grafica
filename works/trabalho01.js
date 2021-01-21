@@ -50,7 +50,6 @@ function main() {
     //---------------------------------------------------------------------------------------
 
     // Variáveis para auxiliar no trabalho
-    var wheels = null;
     var posicaoFinal = {
         x: 0,
         y: 0,
@@ -66,10 +65,14 @@ function main() {
         y: 0,
         z: 90,
     };
+    var wheelsRotation = 0;
+    var wheelsMaxRotation = 35;
 
-    var kart = createKart();
-    var object = kart.object;
-    kart = kart.main;
+    var kartBody = {};
+
+    kartBody = createKart();
+    var object = kartBody.object;
+    var kart = kartBody.main.corpo;
     scene.add(kart);
     buildInterface(object);
 
@@ -98,7 +101,7 @@ function main() {
         trackballControls.update(); // Enable mouse movements
         // lightFollowingCamera(light, camera);
         keyboardUpdate();
-        changeCamera(kart.position, kart.position, vectUp);
+        // changeCamera(kart.position, kart.position, vectUp);
         moveObject(object);
         moveKart(object);
         requestAnimationFrame(render);
@@ -140,82 +143,81 @@ function main() {
     }
 
     function createKart() {
+        let kart = {};
+
         var mainCube = createCube(4, 2, 1);
         mainCube.position.set(0.0, 0.0, 1.25);
 
-
-        var frontCube = createCube(2,1,1);
+        var frontCube = createCube(2, 1, 1);
         frontCube.position.set(2.5, 0.0, -0.35);
 
-        var backCube = createCube(2,1,1);
+        var backCube = createCube(2, 1, 1);
         backCube.position.set(-2.5, 0.0, -0.35);
 
         mainCube.add(frontCube);
         mainCube.add(backCube);
 
-
-        var supportFrontCube = createCube(5,0.90,1);
+        var supportFrontCube = createCube(5, 0.9, 1);
         supportFrontCube.position.set(1.5, 0, 0);
         supportFrontCube.rotation.set(0, 0, degreesToRadians(90));
 
-        var supportBackCube = createCube(5,1,1);
-        supportBackCube.position.set(-6.5, 0, 0);
+        var supportBackCube = createCube(5, 1, 1);
+        supportBackCube.position.set(-1.5, 0, 0);
         supportBackCube.rotation.set(0, 0, degreesToRadians(90));
 
         frontCube.add(supportFrontCube);
-
-        frontCube.add(supportBackCube);
-
-               
-        
-        // var cube = createCube(1, 3, 1);
-        // cube.translateX(2);
-        // cube.translateZ(-1);
-
-        // var cube2 = createCube(1, 3, 1);
-        // cube2.translateX(-2);
-        // cube2.translateZ(-1);
+        backCube.add(supportBackCube);
 
         var frontWheels = createWheels();
-        frontWheels.position.set(-0.40, -0.03, 0.0);
+        frontWheels.cylinder.position.set(-0.4, -0.03, 0.0);
 
         // frontWheels.translateX(2);
         var backWheels = createWheels();
-        backWheels.position.set(-0.01, -0.01, 0.0);
+        backWheels.cylinder.position.set(-0.01, -0.01, 0.0);
 
         mainCube.rotation.set(0, 0, degreesToRadians(90));
-       // mainCube.add(frontWheels);
-       frontCube.add(frontWheels);
-       backCube.add(backWheels);
-       // mainCube.add(backWheels);
+        // mainCube.add(frontWheels);
+        frontCube.add(frontWheels.cylinder);
+        backCube.add(backWheels.cylinder);
+        // mainCube.add(backWheels);
 
         //suporte aerofolio
 
-        var supAero1 = createCube(0.2,1,1);
-        supAero1.position.set(1.0,-0.001,1);
+        var supAero1 = createCube(0.2, 1, 1);
+        supAero1.position.set(1.0, -0.001, 1);
         supportBackCube.add(supAero1);
 
-        var supAero2 = createCube(0.2,1,1);
-        supAero2.position.set(-1.0,-0.001,1);
+        var supAero2 = createCube(0.2, 1, 1);
+        supAero2.position.set(-1.0, -0.001, 1);
         supportBackCube.add(supAero2);
 
         //aerofolio
 
-        var aero = createCube(1,0.1,5);
-        aero.position.set(-1,0,0.52);
-        aero.rotation.set(degreesToRadians(90), degreesToRadians(90), degreesToRadians(5));
+        var aero = createCube(1, 0.1, 5);
+        aero.position.set(-1, 0, 0.52);
+        aero.rotation.set(
+            degreesToRadians(90),
+            degreesToRadians(90),
+            degreesToRadians(5)
+        );
         supAero1.add(aero);
 
+        //bico
 
-        //bico 
-
-        var bico  = createCube(1,0.1,3);
-        bico.position.set(0,1.0,0.75);
-        bico.rotation.set(degreesToRadians(95), degreesToRadians(0), degreesToRadians(0));
+        var bico = createCube(1, 0.1, 3);
+        bico.position.set(0, 1.0, 0.75);
+        bico.rotation.set(
+            degreesToRadians(95),
+            degreesToRadians(0),
+            degreesToRadians(0)
+        );
         supportFrontCube.add(bico);
 
+        kart.corpo = mainCube;
+        kart.eixoFrontal = frontWheels;
+
         return {
-            main: mainCube,
+            main: kart,
             object: null,
         };
     }
@@ -243,7 +245,13 @@ function main() {
         cylinder.add(leftWheel);
         cylinder.add(rightWheel);
 
-        return cylinder;
+        let wheels = {
+            cylinder,
+            leftWheel,
+            rightWheel,
+        };
+
+        return wheels;
     }
 
     function moveObject(object) {
@@ -261,6 +269,16 @@ function main() {
             degreesToRadians(kartRotation.x),
             degreesToRadians(kartRotation.y),
             degreesToRadians(kartRotation.z)
+        );
+        kartBody.main.eixoFrontal.leftWheel.rotation.set(
+            kartBody.main.eixoFrontal.leftWheel.rotation.x,
+            degreesToRadians(wheelsRotation),
+            degreesToRadians(0)
+        );
+        kartBody.main.eixoFrontal.rightWheel.rotation.set(
+            kartBody.main.eixoFrontal.rightWheel.rotation.x,
+            degreesToRadians(wheelsRotation),
+            degreesToRadians(0)
         );
     }
 
@@ -294,17 +312,17 @@ function main() {
         // GUI interface
         var gui = new dat.GUI();
         // Movimento
-        gui.add(controls, "x", -5.0, 5.0)
+        gui.add(controls, "x", -7.0, 5.0)
             .onChange(function (e) {
                 controls.move();
             })
             .name("X");
-        gui.add(controls, "y", -5.0, 5.0)
+        gui.add(controls, "y", -7.0, 5.0)
             .onChange(function (e) {
                 controls.move();
             })
             .name("Y");
-        gui.add(controls, "z", -5.0, 5.0)
+        gui.add(controls, "z", -7.0, 5.0)
             .onChange(function (e) {
                 controls.move();
             })
@@ -334,13 +352,30 @@ function main() {
         var speed = 30;
         var cameraStep = 0.5;
         var rotationSpeed = 2;
+        var rotationWheelsSpeed = 6;
         var moveDistance = speed * clock.getDelta();
 
         // Kart control
         if (keyboard.pressed("W")) kart.translateX(moveDistance);
         if (keyboard.pressed("S")) kart.translateX(-moveDistance);
-        if (keyboard.pressed("A")) kartRotation.z += rotationSpeed;
-        if (keyboard.pressed("D")) kartRotation.z -= rotationSpeed
+        if (keyboard.pressed("A")) {
+            kartRotation.z += rotationSpeed;
+            if(Math.abs(wheelsRotation) < Math.abs(wheelsMaxRotation)){
+                wheelsRotation += rotationWheelsSpeed;
+            }
+        }
+        else if (keyboard.pressed("D")) {
+            kartRotation.z -= rotationSpeed;
+            if(Math.abs(wheelsRotation) < Math.abs(wheelsMaxRotation)){
+                wheelsRotation -= rotationWheelsSpeed;
+            }
+        }
+        else {
+            if(wheelsRotation != 0){
+                let factor = wheelsRotation > 0 ? -1 : 1;
+                wheelsRotation += rotationSpeed * factor * 2;
+            }
+        }
         // Reset Kart
         if (keyboard.pressed("space")) kart.position.set(0.0, 0.0, 2.0);
 
