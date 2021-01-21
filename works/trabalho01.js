@@ -137,11 +137,11 @@ function main() {
 
         var supportFrontCube = createCube(5,1,1);
         supportFrontCube.position.set(2.0, 0, 0);
-        supportFrontCube.rotation.set(0, 0, 800);
+        supportFrontCube.rotation.set(0, 0, degreesToRadians(90));
 
         var supportBackCube = createCube(5,1,1);
         supportBackCube.position.set(-6.0, 0, 0);
-        supportBackCube.rotation.set(0, 0, 800);
+        supportBackCube.rotation.set(0, 0, degreesToRadians(90));
 
         frontCube.add(supportFrontCube);
 
@@ -170,7 +170,7 @@ function main() {
        // mainCube.add(backWheels);
         return {
             main: mainCube,
-            object: frontWheels,
+            object: null,
         };
     }
 
