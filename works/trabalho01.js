@@ -2,6 +2,7 @@ function main() {
     var stats = initStats(); // To show FPS information
     var scene = new THREE.Scene(); // Create main scene
     var renderer = initRenderer(); // View function in util/utils
+    var camera = initCamera(new THREE.Vector3(0, -30, 15)); // Init camera in this position
     var light = initDefaultLighting(scene, new THREE.Vector3(7, 7, 7));
     var clock = new THREE.Clock();
     var keyboard = new KeyboardState();
@@ -113,6 +114,14 @@ function main() {
         return cube;
     }
 
+    function createCubeColor(width, height, depth, parent) {
+        const geometry = new THREE.BoxGeometry(width, height, depth);
+        const material = new THREE.MeshPhongMaterial({color: parent});
+        const cube = new THREE.Mesh(geometry, material);
+        cube.position.set(0.0, 0.0, 0.0);
+        return cube;
+    }
+
     function createCylinder(radiusTop, radiusBottom, height, radialSegments) {
         const geometry = new THREE.CylinderGeometry(
             radiusTop,
@@ -120,7 +129,20 @@ function main() {
             height,
             radialSegments
         );
-        const material = new THREE.MeshPhongMaterial({ color: 0xffff00 });
+        const material = new THREE.MeshPhongMaterial({ color: '#fffff' });
+        const cylinder = new THREE.Mesh(geometry, material);
+        cylinder.position.set(0.0, 0.0, 0.0);
+        return cylinder;
+    }
+
+    function createCylinderColor(radiusTop, radiusBottom, height, radialSegments,color) {
+        const geometry = new THREE.CylinderGeometry(
+            radiusTop,
+            radiusBottom,
+            height,
+            radialSegments
+        );
+        const material = new THREE.MeshPhongMaterial({ color: color });
         const cylinder = new THREE.Mesh(geometry, material);
         cylinder.position.set(0.0, 0.0, 0.0);
         return cylinder;
@@ -133,40 +155,72 @@ function main() {
             radialSegments,
             tubularSegments
         );
-        const material = new THREE.MeshPhongMaterial();
+        const material = new THREE.MeshPhongMaterial({color:'#000000'});
         const torus = new THREE.Mesh(geometry, material);
         torus.position.set(0.0, 0.0, 0.0);
         return torus;
     }
 
     function createKart() {
-        var mainCube = createCube(4, 2, 1);
+        var mainCube = createCubeColor(4, 2, 1,'#000000');
         mainCube.position.set(0.0, 0.0, 1.25);
 
 
-        var frontCube = createCube(2,1,1);
+         //separacao pro banco
+         var part1 = createCubeColor(4,0.0001,0.91, '#000000') 
+         part1.position.set(0,1,0.5);
+         mainCube.add(part1);
+
+         var part2 = createCubeColor(4,0.0001,0.91, '#000000') 
+         part2.position.set(0,-1,0.5);
+         mainCube.add(part2);
+
+         var part3 = createCubeColor(4,0.0001,0.91, '#000000')
+         part3.position.set(-2,0,0.5);
+         part3.rotation.set(0, 0, degreesToRadians(90));
+         mainCube.add(part3);
+
+
+         var part4 = createCubeColor(4,0.0001,0.91, '#000000')
+         part4.position.set(2,0,0.5);
+         part4.rotation.set(0, 0, degreesToRadians(90));
+         mainCube.add(part4);
+
+        //cadeira assento
+         var assento= createCubeColor(2.0,0.1,1.5,'#fffff') 
+         assento.position.set(-0.95,0,0.55);
+         assento.rotation.set(degreesToRadians(90), 0, 0);
+         mainCube.add(assento);
+
+        //cadeira encosto
+
+        var encosto= createCubeColor(1.5,0.1,0.91,'#fffff') 
+        encosto.position.set(-1.90,0,1);
+        encosto.rotation.set(0, 0, degreesToRadians(90));
+        mainCube.add(encosto);
+
+
+        var frontCube = createCubeColor(2,1,1,'#1eff00');
         frontCube.position.set(2.5, 0.0, -0.35);
 
-        var backCube = createCube(2,1,1);
+        var backCube = createCubeColor(2,1,1,'#1eff00');
         backCube.position.set(-2.5, 0.0, -0.35);
 
         mainCube.add(frontCube);
         mainCube.add(backCube);
 
 
-        var supportFrontCube = createCube(5,0.90,1);
-        supportFrontCube.position.set(1.5, 0, 0);
+        var supportFrontCube = createCubeColor(5,0.75,1.10,'#000000');
+        supportFrontCube.position.set(1.0, 0, 0);
         supportFrontCube.rotation.set(0, 0, degreesToRadians(90));
 
-        var supportBackCube = createCube(5,1,1);
+        var supportBackCube = createCubeColor(5,1,1,'#000000');
         supportBackCube.position.set(-6.5, 0, 0);
         supportBackCube.rotation.set(0, 0, degreesToRadians(90));
 
         frontCube.add(supportFrontCube);
 
-        frontCube.add(supportBackCube);
-
-               
+        frontCube.add(supportBackCube);            
         
         // var cube = createCube(1, 3, 1);
         // cube.translateX(2);
@@ -177,7 +231,7 @@ function main() {
         // cube2.translateZ(-1);
 
         var frontWheels = createWheels();
-        frontWheels.position.set(-0.40, -0.03, 0.0);
+        frontWheels.position.set(-0.20, -0.03, 0.0);
 
         // frontWheels.translateX(2);
         var backWheels = createWheels();
@@ -191,34 +245,87 @@ function main() {
 
         //suporte aerofolio
 
-        var supAero1 = createCube(0.2,1,1);
+        var supAero1 = createCubeColor(0.2,1,1,'#fffff');
         supAero1.position.set(1.0,-0.001,1);
         supportBackCube.add(supAero1);
 
-        var supAero2 = createCube(0.2,1,1);
+        var supAero2 = createCubeColor(0.2,1,1,'#fffff');
         supAero2.position.set(-1.0,-0.001,1);
         supportBackCube.add(supAero2);
 
         //aerofolio
 
-        var aero = createCube(1,0.1,5);
+        var aero = createCubeColor(1,0.1,5, '#00ff08');
         aero.position.set(-1,0,0.52);
         aero.rotation.set(degreesToRadians(90), degreesToRadians(90), degreesToRadians(5));
         supAero1.add(aero);
 
-
+       /* //suporte bico
+        var supportBico = createCubeColor(0.5,0.8,0.2, '#000000');
+        supportBico.position.set(-0.25, 0, 0.75);
+        supportBico.rotation.set(0, 0, 0);
+        frontCube.add(supportBico);
+*/
         //bico 
 
-        var bico  = createCube(1,0.1,3);
-        bico.position.set(0,1.0,0.75);
-        bico.rotation.set(degreesToRadians(95), degreesToRadians(0), degreesToRadians(0));
+        var bico  = createCubeColor(0.85,0.08,2.15,'#1eff00'
+            );
+        bico.position.set(0,0.6,0.98);
+        bico.rotation.set(degreesToRadians(-67.6), degreesToRadians(0), degreesToRadians(0));
         supportFrontCube.add(bico);
+        
+        //tampo
+        var tampo = createCubeColor(0.5,1.99,1,'#000000');
+        tampo.position.set(1.47,0,0.8);
+        tampo.rotation.set(0, degreesToRadians(90), 0);
+        mainCube.add(tampo);
+
+        //volante
+        var volante = createVolante();
+        volante.position.set(-0.25,0.04,-1.1);
+        volante.rotation.set(degreesToRadians(-90), 0,degreesToRadians(30))
+        tampo.add(volante);
+
+        //detalhes 
+
+        var detLeft = createCylinderColor(0.5,0.5,1,3,'#00ba03');
+        detLeft.position.set(0,1.2,0.04);
+        detLeft.rotation.set(degreesToRadians(30), 0,degreesToRadians(90))
+        mainCube.add(detLeft);
+
+        var detRight = createCylinderColor(0.5,0.5,1,3, '#00ba03');
+        detRight.position.set(0,-1.2,-0.04);
+        detRight.rotation.set(degreesToRadians(-30), 0,degreesToRadians(90))
+        mainCube.add(detRight);
 
         return {
             main: mainCube,
             object: null,
         };
     }
+
+    function createVolante() {
+
+        let cylinderRadius = 0.1;
+        let cylinderHeight = 1.5;
+        let torusRadius = 0.2;
+        let segments = 32;
+        let tube = 0.1;
+        const cylinder = createCylinder(
+            cylinderRadius,
+            cylinderRadius,
+            cylinderHeight,
+            segments
+        );
+        const rodaVolante = createTorus(torusRadius, tube, segments, segments);
+        rodaVolante.rotation.set(degreesToRadians(90), 0, 0);
+        rodaVolante.position.set(0, cylinderHeight / 2 - tube, 0);
+
+        cylinder.add(rodaVolante);
+        return cylinder;
+
+    }
+
 
     function createWheels() {
         let cylinderRadius = 0.25;
