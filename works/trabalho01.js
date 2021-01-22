@@ -175,13 +175,13 @@ function main() {
          part2.position.set(0,-1,0.5);
          mainCube.add(part2);
 
-         var part3 = createCubeColor(4,0.0001,0.91, '#000000')
+         var part3 = createCubeColor(2.0,0.0001,0.91, '#000000')
          part3.position.set(-2,0,0.5);
          part3.rotation.set(0, 0, degreesToRadians(90));
          mainCube.add(part3);
 
 
-         var part4 = createCubeColor(4,0.0001,0.91, '#000000')
+         var part4 = createCubeColor(2.0,0.0001,0.91, '#000000')
          part4.position.set(2,0,0.5);
          part4.rotation.set(0, 0, degreesToRadians(90));
          mainCube.add(part4);
