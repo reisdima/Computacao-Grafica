@@ -1,13 +1,12 @@
 function main() {
-    var stats = initStats(); // To show FPS information
-    var scene = new THREE.Scene(); // Create main scene
-    var renderer = initRenderer(); // View function in util/utils
-    var camera = initCamera(new THREE.Vector3(0, -30, 15)); // Init camera in this position
-    var light = initDefaultLighting(scene, new THREE.Vector3(7, 7, 7));
+    var stats = initStats(); // Mostra fps
+    var scene = new THREE.Scene(); // Cria cena principal
+    var renderer = initRenderer(); 
+    var light = initDefaultLighting(scene, new THREE.Vector3());
     var clock = new THREE.Clock();
     var keyboard = new KeyboardState();
 
-    var camera = initCamera(new THREE.Vector3(0, -30, 15)); // Init camera in this position
+    var camera = initCamera(new THREE.Vector3(0, -30, 15)); // Inicia camera in this position
     var cameraPosition = new THREE.Vector3(0, -30, 15);
     var cameraDirection = new THREE.Vector3(0, 0, 0);
     var vectUp = {
@@ -23,19 +22,19 @@ function main() {
         renderer.domElement
     );
 
-    // Show axes (parameter is size of each axis)
+    // Mostra eixos
     var axesHelper = new THREE.AxesHelper(12);
     scene.add(axesHelper);
 
-    //---------------------------------------------------------------------------------------
-    // create the ground plane with wireframe
+    //Inicio Criacao do Plano
+    
     var planeGeometry = new THREE.PlaneGeometry(700, 700, 40, 40);
-    planeGeometry.translate(0.0, 0.0, -0.02); // To avoid conflict with the axeshelper
-    var planeMaterial = new THREE.MeshBasicMaterial({
+    planeGeometry.translate(0.0, 0.0, -0.02); 
+    var planeMaterial = new THREE.MeshPhongMaterial({
         color: "rgba(20, 30, 110)",
         side: THREE.DoubleSide,
         polygonOffset: true,
-        polygonOffsetFactor: 1, // positive value pushes polygon further away
+        polygonOffsetFactor: 1, 
         polygonOffsetUnits: 1,
     });
     var plane = new THREE.Mesh(planeGeometry, planeMaterial);
@@ -45,7 +44,7 @@ function main() {
     var line = new THREE.LineSegments(wireframe);
     line.material.color.setStyle("rgb(180, 180, 180)");
     scene.add(line);
-    //---------------------------------------------------------------------------------------
+    //Fim Criacao do Plano
 
     // Variáveis para auxiliar no trabalho
     var posicaoFinal = {
@@ -58,12 +57,6 @@ function main() {
         y: 0,
         z: 2,
     };
-    // var kartRotation = {
-    //     x: 0,
-    //     y: 0,
-    //     z: 90,
-    // };
-    var kartRotation = 0;
     var wheelsRotation = 0;
     var wheelsMaxRotation = 35;
     var cameraRotation = 0;
@@ -100,22 +93,16 @@ function main() {
     function render() {
         stats.update(); // Update FPS
         trackballControls.update(); // Enable mouse movements
-        // lightFollowingCamera(light, camera);
         keyboardUpdate();
         changeCamera(kart.position, kart.position, vectUp);
         moveObject(object);
         moveKart();
+        lightFollowingCamera(light, camera);
         requestAnimationFrame(render);
         renderer.render(scene, camera); // Render scene
     }
 
-    function createCube(width, height, depth, parent) {
-        const geometry = new THREE.BoxGeometry(width, height, depth);
-        const material = new THREE.MeshPhongMaterial();
-        const cube = new THREE.Mesh(geometry, material);
-        cube.position.set(0.0, 0.0, 0.0);
-        return cube;
-    }
+    //Inicio funcoes para criar as formas basicas
 
     function createCubeColor(width, height, depth, parent) {
         const geometry = new THREE.BoxGeometry(width, height, depth);
@@ -170,6 +157,11 @@ function main() {
         return torus;
     }
 
+    // fim funcoes para criar as formas basicas
+
+
+
+    // funcao para criar o kart e suas partes
     function createKart() {
         var mainCube = createCubeColor(4, 2, 1, "#000000");
         mainCube.position.set(0.0, 0.0, 1.25);
@@ -206,19 +198,25 @@ function main() {
         encosto.rotation.set(0, 0, degreesToRadians(90));
         mainCube.add(encosto);
 
+
+        //cubo da frente
         var frontCube = createCubeColor(2, 1, 1, "#1eff00");
         frontCube.position.set(2.5, 0.0, -0.35);
 
+        //cubo de tras
         var backCube = createCubeColor(2, 1, 1, "#1eff00");
         backCube.position.set(-2.5, 0.0, -0.35);
 
         mainCube.add(frontCube);
         mainCube.add(backCube);
 
+        //adicionado suporte para o bico
         var supportFrontCube = createCubeColor(5, 0.75, 1.1, "#000000");
         supportFrontCube.position.set(1.0, 0, 0);
         supportFrontCube.rotation.set(0, 0, degreesToRadians(90));
 
+        
+        //adicionado suporte para colocar o aerofolio
         var supportBackCube = createCubeColor(5, 1, 1, "#000000");
         supportBackCube.position.set(-6.5, 0, 0);
         supportBackCube.rotation.set(0, 0, degreesToRadians(90));
@@ -227,26 +225,18 @@ function main() {
 
         frontCube.add(supportBackCube);
 
-        // var cube = createCube(1, 3, 1);
-        // cube.translateX(2);
-        // cube.translateZ(-1);
-
-        // var cube2 = createCube(1, 3, 1);
-        // cube2.translateX(-2);
-        // cube2.translateZ(-1);
-
-        var frontWheels = createWheels();
+        //criacao das rodas
+        var frontWheels = createRoda();
         frontWheels.cylinder.position.set(-0.2, -0.03, 0.0);
 
-        // frontWheels.translateX(2);
-        var backWheels = createWheels();
+        var backWheels = createRoda();
         backWheels.cylinder.position.set(-0.01, -0.01, 0.0);
 
         mainCube.rotation.set(0, 0, degreesToRadians(90));
-        // mainCube.add(frontWheels);
+        
         frontCube.add(frontWheels.cylinder);
         backCube.add(backWheels.cylinder);
-        // mainCube.add(backWheels);
+        
 
         //suporte aerofolio
 
@@ -269,12 +259,7 @@ function main() {
         );
         supAero1.add(aero);
 
-        /* //suporte bico
-        var supportBico = createCubeColor(0.5,0.8,0.2, '#000000');
-        supportBico.position.set(-0.25, 0, 0.75);
-        supportBico.rotation.set(0, 0, 0);
-        frontCube.add(supportBico);
-*/
+        
         //bico
 
         var bico = createCubeColor(0.85, 0.08, 2.15, "#1eff00");
@@ -298,7 +283,7 @@ function main() {
         volante.rotation.set(degreesToRadians(-90), 0, degreesToRadians(30));
         tampo.add(volante);
 
-        //detalhes
+        //detalhes das laterais
 
         var detLeft = createCylinderColor(0.5, 0.5, 1, 3, "#00ba03");
         detLeft.position.set(0, 1.2, 0.04);
@@ -319,7 +304,7 @@ function main() {
             object: null,
         };
     }
-
+    // criacao do volante
     function createVolante() {
         let cylinderRadius = 0.1;
         let cylinderHeight = 1.5;
@@ -340,7 +325,8 @@ function main() {
         return cylinder;
     }
 
-    function createWheels() {
+    //criacao das rodas
+    function createRoda() {
         let cylinderRadius = 0.25;
         let cylinderHeight = 4.5;
         let torusRadius = 0.5;
@@ -371,7 +357,11 @@ function main() {
 
         return wheels;
     }
+    
+    // fim funcao para criar kart e suas partes
 
+
+    // Inicio funcao auxiliar para ajudar a posicionar as formas
     function moveObject(object) {
         if (!object) return;
         object.position.set(posicaoFinal.x, posicaoFinal.y, posicaoFinal.z);
@@ -382,6 +372,9 @@ function main() {
         );
     }
 
+    // fim funcao para ajudar a posicionar as formas
+
+    // movimentacao das rodas
     function moveKart() {
         kartBody.main.eixoFrontal.leftWheel.rotation.set(
             kartBody.main.eixoFrontal.leftWheel.rotation.x,
@@ -459,6 +452,8 @@ function main() {
         gui.add(obj, "Botao");
     }
 
+
+    //funcao responsavel pelos comandos com teclado
     function keyboardUpdate() {
         keyboard.update();
         var delta = clock.getDelta();
@@ -474,9 +469,9 @@ function main() {
         let speedPositive = kartSpeed >= 0;
 
         // Movimentação do kart
-        if (keyboard.pressed("W") && kartSpeed < maxSpeed) {
+        if (keyboard.pressed("up") && kartSpeed < maxSpeed) {
             kartSpeed += acceleration;
-        } else if (keyboard.pressed("S") && kartSpeed > -maxSpeed) {
+        } else if (keyboard.pressed("down") && kartSpeed > -maxSpeed) {
             kartSpeed -= acceleration * brakeAccelerationFactor * 1.2;
         } else if (kartSpeed != 0) {
             if (kartSpeed > -1 && kartSpeed < 1) {
@@ -491,20 +486,20 @@ function main() {
         var moveDistance = kartSpeed * delta;
         kart.translateX(moveDistance);
 
-        if (keyboard.pressed("A")) {
+        if (keyboard.pressed("left")) {
             if (kartSpeed != 0) {
                 cameraRotation -= degreesToRadians(rotateAngle * speedPositive ? 1 : -1);
                 kart.rotateOnAxis(new THREE.Vector3(0, 0, 1), degreesToRadians(rotateAngle * speedPositive ? 1 : -1));
             }
-            if (Math.abs(wheelsRotation) < Math.abs(wheelsMaxRotation)) {
+            if (Math.abs(wheelsRotation) < wheelsMaxRotation) {
                 wheelsRotation += rotationWheelsSpeed;
             }
-        } else if (keyboard.pressed("D")) {
+        } else if (keyboard.pressed("right")) {
             if (kartSpeed != 0) {
                 cameraRotation += degreesToRadians(rotateAngle * speedPositive ? 1 : -1);
                 kart.rotateOnAxis(new THREE.Vector3(0, 0, 1), -degreesToRadians(rotateAngle * speedPositive ? 1 : -1));
             }
-            if (Math.abs(wheelsRotation) < Math.abs(wheelsMaxRotation)) {
+            if (Math.abs(wheelsRotation) < wheelsMaxRotation) {
                 wheelsRotation -= rotationWheelsSpeed;
             }
         } else {
@@ -515,22 +510,11 @@ function main() {
         }
         // Reset Kart
         // if (keyboard.pressed("space")) kart.position.set(0.0, 0.0, 2.0);
-
-        // Camera control
-        if (keyboard.pressed("left")) {
-            cameraPosition.add(new THREE.Vector3(-cameraStep, 0, 0));
-        }
-        if (keyboard.pressed("right")) {
-            cameraPosition.add(new THREE.Vector3(cameraStep, 0, 0));
-        }
-        if (keyboard.pressed("up")) {
-            cameraPosition.add(new THREE.Vector3(0, cameraStep, 0));
-        }
-        if (keyboard.pressed("down")) {
-            cameraPosition.add(new THREE.Vector3(0, -cameraStep, 0));
-        }
+        
+       
     }
 
+    // funcao utilizada para manter a posicao da camera
     function changeCamera(position, look, up) {
         var rotY = Math.cos(cameraRotation);
         var rotX = Math.sin(cameraRotation);
