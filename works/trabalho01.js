@@ -474,40 +474,41 @@ function main() {
         var cameraStep = 0.5;
         var rotationSpeed = 2;
         var rotationWheelsSpeed = 6;
-        var brake = 1.2;
+        var brakeAccelerationFactor = 1.2;
 
         var rotateAngle = degreesToRadians(2);
 
-        // Kart control
+        // Movimentação do kart
         if (keyboard.pressed("W") && kartSpeed < maxSpeed) {
             kartSpeed += acceleration;
         } else if (keyboard.pressed("S") && kartSpeed > -maxSpeed) {
-            kartSpeed -= acceleration * brake * 1.2;
-        } else {
-            if (kartSpeed != 0) {
-                if (kartSpeed > -1 && kartSpeed < 1) {
-                    kartSpeed = 0;
-                } else {
-                    if (kartSpeed > 0) {
-                        kartSpeed -= acceleration * brake;
-                    } else {
-                        kartSpeed += acceleration * brake;
-                    }
-                }
+            kartSpeed -= acceleration * brakeAccelerationFactor * 1.2;
+        } else if (kartSpeed != 0) {
+            if (kartSpeed > -1 && kartSpeed < 1) {
+                kartSpeed = 0;
+            } else {
+                kartSpeed +=
+                    acceleration * kartSpeed < 0
+                        ? brakeAccelerationFactor
+                        : -brakeAccelerationFactor;
             }
         }
         var moveDistance = kartSpeed * delta;
         kart.translateX(moveDistance);
 
         if (keyboard.pressed("A")) {
-            cameraRotation -= rotateAngle;
-            kart.rotateOnAxis(new THREE.Vector3(0, 0, 1), rotateAngle);
+            if(kartSpeed != 0){
+                cameraRotation -= rotateAngle;
+                kart.rotateOnAxis(new THREE.Vector3(0, 0, 1), rotateAngle);
+            }
             if (Math.abs(wheelsRotation) < Math.abs(wheelsMaxRotation)) {
                 wheelsRotation += rotationWheelsSpeed;
             }
         } else if (keyboard.pressed("D")) {
-            cameraRotation += rotateAngle;
-            kart.rotateOnAxis(new THREE.Vector3(0, 0, 1), -rotateAngle);
+            if(kartSpeed != 0){
+                cameraRotation += rotateAngle;
+                kart.rotateOnAxis(new THREE.Vector3(0, 0, 1), -rotateAngle);
+            }
             if (Math.abs(wheelsRotation) < Math.abs(wheelsMaxRotation)) {
                 wheelsRotation -= rotationWheelsSpeed;
             }
