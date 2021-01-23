@@ -481,16 +481,18 @@ function main() {
         // Kart control
         if (keyboard.pressed("W") && kartSpeed < maxSpeed) {
             kartSpeed += acceleration;
-        }
-        else if (keyboard.pressed("S") && kartSpeed > -maxSpeed) {
-            kartSpeed -= acceleration;
-        }
-        else {
-            if(kartSpeed != 0){
-                if(kartSpeed > 0){
-                    kartSpeed -= acceleration * brake;
+        } else if (keyboard.pressed("S") && kartSpeed > -maxSpeed) {
+            kartSpeed -= acceleration * brake * 1.2;
+        } else {
+            if (kartSpeed != 0) {
+                if (kartSpeed > -1 && kartSpeed < 1) {
+                    kartSpeed = 0;
                 } else {
-                    kartSpeed += acceleration * brake;
+                    if (kartSpeed > 0) {
+                        kartSpeed -= acceleration * brake;
+                    } else {
+                        kartSpeed += acceleration * brake;
+                    }
                 }
             }
         }
