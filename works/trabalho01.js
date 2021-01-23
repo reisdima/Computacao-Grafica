@@ -383,21 +383,15 @@ function main() {
     }
 
     function moveKart() {
-        // kart.rotation.set(
-        // degreesToRadians(kartRotation.x),
-        //     degreesToRadians(kartRotation.y),
-        //     degreesToRadians(kartRotation.z)
-        // );
-        // kart.rotateOnAxis(new THREE.Vector3(0, 0, 1), kartRotation);
         kartBody.main.eixoFrontal.leftWheel.rotation.set(
             kartBody.main.eixoFrontal.leftWheel.rotation.x,
             degreesToRadians(wheelsRotation),
-            degreesToRadians(0)
+            0
         );
         kartBody.main.eixoFrontal.rightWheel.rotation.set(
             kartBody.main.eixoFrontal.rightWheel.rotation.x,
             degreesToRadians(wheelsRotation),
-            degreesToRadians(0)
+            0
         );
     }
 
@@ -476,7 +470,8 @@ function main() {
         var rotationWheelsSpeed = 6;
         var brakeAccelerationFactor = 1.2;
 
-        var rotateAngle = degreesToRadians(2);
+        var rotateAngle = 2;
+        let speedPositive = kartSpeed >= 0;
 
         // Movimentação do kart
         if (keyboard.pressed("W") && kartSpeed < maxSpeed) {
@@ -488,26 +483,26 @@ function main() {
                 kartSpeed = 0;
             } else {
                 kartSpeed +=
-                    acceleration * kartSpeed < 0
-                        ? brakeAccelerationFactor
-                        : -brakeAccelerationFactor;
+                    acceleration * speedPositive
+                        ? -brakeAccelerationFactor
+                        : brakeAccelerationFactor;
             }
         }
         var moveDistance = kartSpeed * delta;
         kart.translateX(moveDistance);
 
         if (keyboard.pressed("A")) {
-            if(kartSpeed != 0){
-                cameraRotation -= rotateAngle;
-                kart.rotateOnAxis(new THREE.Vector3(0, 0, 1), rotateAngle);
+            if (kartSpeed != 0) {
+                cameraRotation -= degreesToRadians(rotateAngle * speedPositive ? 1 : -1);
+                kart.rotateOnAxis(new THREE.Vector3(0, 0, 1), degreesToRadians(rotateAngle * speedPositive ? 1 : -1));
             }
             if (Math.abs(wheelsRotation) < Math.abs(wheelsMaxRotation)) {
                 wheelsRotation += rotationWheelsSpeed;
             }
         } else if (keyboard.pressed("D")) {
-            if(kartSpeed != 0){
-                cameraRotation += rotateAngle;
-                kart.rotateOnAxis(new THREE.Vector3(0, 0, 1), -rotateAngle);
+            if (kartSpeed != 0) {
+                cameraRotation += degreesToRadians(rotateAngle * speedPositive ? 1 : -1);
+                kart.rotateOnAxis(new THREE.Vector3(0, 0, 1), -degreesToRadians(rotateAngle * speedPositive ? 1 : -1));
             }
             if (Math.abs(wheelsRotation) < Math.abs(wheelsMaxRotation)) {
                 wheelsRotation -= rotationWheelsSpeed;
