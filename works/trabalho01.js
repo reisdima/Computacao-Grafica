@@ -58,16 +58,18 @@ function main() {
         y: 0,
         z: 2,
     };
-    var kartRotation = {
-        x: 0,
-        y: 0,
-        z: 90,
-    };
+    // var kartRotation = {
+    //     x: 0,
+    //     y: 0,
+    //     z: 90,
+    // };
+    var kartRotation = 0;
     var wheelsRotation = 0;
     var wheelsMaxRotation = 35;
     var cameraRotation = 0;
 
     var kartBody = {};
+    var kartSpeed = 0;
 
     kartBody = createKart();
     var object = kartBody.object;
@@ -102,7 +104,7 @@ function main() {
         keyboardUpdate();
         changeCamera(kart.position, kart.position, vectUp);
         moveObject(object);
-        moveKart(object);
+        moveKart();
         requestAnimationFrame(render);
         renderer.render(scene, camera); // Render scene
     }
@@ -381,11 +383,12 @@ function main() {
     }
 
     function moveKart() {
-        kart.rotation.set(
-            degreesToRadians(kartRotation.x),
-            degreesToRadians(kartRotation.y),
-            degreesToRadians(kartRotation.z)
-        );
+        // kart.rotation.set(
+        // degreesToRadians(kartRotation.x),
+        //     degreesToRadians(kartRotation.y),
+        //     degreesToRadians(kartRotation.z)
+        // );
+        // kart.rotateOnAxis(new THREE.Vector3(0, 0, 1), kartRotation);
         kartBody.main.eixoFrontal.leftWheel.rotation.set(
             kartBody.main.eixoFrontal.leftWheel.rotation.x,
             degreesToRadians(wheelsRotation),
@@ -466,27 +469,43 @@ function main() {
         keyboard.update();
         var delta = clock.getDelta();
 
-        var speed = 30;
+        var acceleration = 1;
+        var maxSpeed = 70;
         var cameraStep = 0.5;
         var rotationSpeed = 2;
         var rotationWheelsSpeed = 6;
-        var moveDistance = speed * delta;
+        var brake = 1.2;
 
-        var sensitivity = 10;
-        var rotateAngle = degreesToRadians(12) * delta * sensitivity;
+        var rotateAngle = degreesToRadians(2);
 
         // Kart control
-        if (keyboard.pressed("W")) kart.translateX(moveDistance);
-        if (keyboard.pressed("S")) kart.translateX(-moveDistance);
+        if (keyboard.pressed("W") && kartSpeed < maxSpeed) {
+            kartSpeed += acceleration;
+        }
+        else if (keyboard.pressed("S") && kartSpeed > -maxSpeed) {
+            kartSpeed -= acceleration;
+        }
+        else {
+            if(kartSpeed != 0){
+                if(kartSpeed > 0){
+                    kartSpeed -= acceleration * brake;
+                } else {
+                    kartSpeed += acceleration * brake;
+                }
+            }
+        }
+        var moveDistance = kartSpeed * delta;
+        kart.translateX(moveDistance);
+
         if (keyboard.pressed("A")) {
             cameraRotation -= rotateAngle;
-            kartRotation.z += rotationSpeed;
+            kart.rotateOnAxis(new THREE.Vector3(0, 0, 1), rotateAngle);
             if (Math.abs(wheelsRotation) < Math.abs(wheelsMaxRotation)) {
                 wheelsRotation += rotationWheelsSpeed;
             }
         } else if (keyboard.pressed("D")) {
             cameraRotation += rotateAngle;
-            kartRotation.z -= rotationSpeed;
+            kart.rotateOnAxis(new THREE.Vector3(0, 0, 1), -rotateAngle);
             if (Math.abs(wheelsRotation) < Math.abs(wheelsMaxRotation)) {
                 wheelsRotation -= rotationWheelsSpeed;
             }
@@ -497,7 +516,7 @@ function main() {
             }
         }
         // Reset Kart
-        if (keyboard.pressed("space")) kart.position.set(0.0, 0.0, 2.0);
+        // if (keyboard.pressed("space")) kart.position.set(0.0, 0.0, 2.0);
 
         // Camera control
         if (keyboard.pressed("left")) {
@@ -519,7 +538,7 @@ function main() {
         var rotX = Math.sin(cameraRotation);
         var distance = 50;
         camera.position.x = position.x - distance * rotX;
-        camera.position.y= position.y - distance * rotY;
+        camera.position.y = position.y - distance * rotY;
 
         // camera.position.set(position.x, position.y - 30, cameraPosition.z);
         camera.lookAt(look);
