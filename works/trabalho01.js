@@ -84,14 +84,20 @@ function main() {
     buildInterface(object);
 
     // Use this to show information onscreen
+
+    
     controls = new InfoBox();
-    controls.add("Basic Scene");
+    controls.add("Comandos Modo Jogo");
+    controls.add("Use as setas para movimentar o kart");
+    controls.add("Use o scroll do mouse/botao esquerdo para dar zoom");
     controls.addParagraph();
-    controls.add("Use mouse to interact:");
-    controls.add("* Left button to rotate");
-    controls.add("* Right button to translate (pan)");
-    controls.add("* Scroll to zoom in/out.");
+    controls.add("Comandos Modo Inspeção");    
+    controls.add("Use o mouse para inspecionar o carro");
+    controls.add("Use o scroll do mouse para dar zoom");
+    controls.addParagraph();
+    controls.add("Aperte Espaço para Trocar de Modo");
     controls.show();
+    
 
     // Listen window size changes
     window.addEventListener(
@@ -134,7 +140,7 @@ function main() {
             height,
             radialSegments
         );
-        const material = new THREE.MeshPhongMaterial({ color: "#fffff" });
+        const material = new THREE.MeshPhongMaterial({ color: "#ffffff" });
         const cylinder = new THREE.Mesh(geometry, material);
         cylinder.position.set(0.0, 0.0, 0.0);
         return cylinder;
@@ -166,7 +172,7 @@ function main() {
             radialSegments,
             tubularSegments
         );
-        const material = new THREE.MeshPhongMaterial({ color: "#000000" });
+        const material = new THREE.MeshPhongMaterial({ color: "#3e403e" });
         const torus = new THREE.Mesh(geometry, material);
         torus.position.set(0.0, 0.0, 0.0);
         return torus;
@@ -176,37 +182,37 @@ function main() {
 
     // funcao para criar o kart e suas partes
     function createKart() {
-        var mainCube = createCubeColor(4, 2, 1, "#000000");
+        var mainCube = createCubeColor(4, 2, 1, "#3e403e");
         mainCube.position.copy(kartPosicaoInicial);
 
         //separacao pro banco
-        var part1 = createCubeColor(4, 0.0001, 0.91, "#000000");
+        var part1 = createCubeColor(4, 0.0001, 0.91, "#3e403e");
         part1.position.set(0, 1, 0.5);
         mainCube.add(part1);
 
-        var part2 = createCubeColor(4, 0.0001, 0.91, "#000000");
+        var part2 = createCubeColor(4, 0.0001, 0.91, "#3e403e");
         part2.position.set(0, -1, 0.5);
         mainCube.add(part2);
 
-        var part3 = createCubeColor(2.0, 0.0001, 0.91, "#000000");
+        var part3 = createCubeColor(2.0, 0.0001, 0.91, "#3e403e");
         part3.position.set(-2, 0, 0.5);
         part3.rotation.set(0, 0, degreesToRadians(90));
         mainCube.add(part3);
 
-        var part4 = createCubeColor(2.0, 0.0001, 0.91, "#000000");
+        var part4 = createCubeColor(2.0, 0.0001, 0.91, "#3e403e");
         part4.position.set(2, 0, 0.5);
         part4.rotation.set(0, 0, degreesToRadians(90));
         mainCube.add(part4);
 
         //cadeira assento
-        var assento = createCubeColor(2.0, 0.1, 1.5, "#fffff");
+        var assento = createCubeColor(2.0, 0.1, 1.5, "#ffffff");
         assento.position.set(-0.95, 0, 0.55);
         assento.rotation.set(degreesToRadians(90), 0, 0);
         mainCube.add(assento);
 
         //cadeira encosto
 
-        var encosto = createCubeColor(1.5, 0.1, 0.91, "#fffff");
+        var encosto = createCubeColor(1.5, 0.1, 0.91, "#ffffff");
         encosto.position.set(-1.9, 0, 1);
         encosto.rotation.set(0, 0, degreesToRadians(90));
         mainCube.add(encosto);
@@ -223,12 +229,12 @@ function main() {
         mainCube.add(backCube);
 
         //adicionado suporte para o bico
-        var supportFrontCube = createCubeColor(5, 0.75, 1.1, "#000000");
+        var supportFrontCube = createCubeColor(5, 0.75, 1.1, "#3e403e");
         supportFrontCube.position.set(1.0, 0, 0);
         supportFrontCube.rotation.set(0, 0, degreesToRadians(90));
 
         //adicionado suporte para colocar o aerofolio
-        var supportBackCube = createCubeColor(5, 1, 1, "#000000");
+        var supportBackCube = createCubeColor(5, 1, 1, "#3e403e");
         supportBackCube.position.set(-6.5, 0, 0);
         supportBackCube.rotation.set(0, 0, degreesToRadians(90));
 
@@ -250,11 +256,11 @@ function main() {
 
         //suporte aerofolio
 
-        var supAero1 = createCubeColor(0.2, 1, 1, "#fffff");
+        var supAero1 = createCubeColor(0.2, 1, 1, "#ffffff");
         supAero1.position.set(1.0, -0.001, 1);
         supportBackCube.add(supAero1);
 
-        var supAero2 = createCubeColor(0.2, 1, 1, "#fffff");
+        var supAero2 = createCubeColor(0.2, 1, 1, "#ffffff");
         supAero2.position.set(-1.0, -0.001, 1);
         supportBackCube.add(supAero2);
 
@@ -281,7 +287,7 @@ function main() {
         supportFrontCube.add(bico);
 
         //tampo
-        var tampo = createCubeColor(0.5, 1.99, 1, "#000000");
+        var tampo = createCubeColor(0.5, 1.99, 1, "#3e403e");
         tampo.position.set(1.47, 0, 0.8);
         tampo.rotation.set(0, degreesToRadians(90), 0);
         mainCube.add(tampo);
@@ -481,12 +487,40 @@ function main() {
         kartProps.currentSpeed = 0;
     }
 
+
+    //trocar modo de camera
+    function changeMode() {
+        if(gameMode){
+            scene.remove(plane);
+            scene.remove(line);
+            scene.remove(axesHelper);
+            gameMode = false;
+            
+        } else {
+            scene.add(axesHelper);
+            scene.add(plane);
+            scene.add(line);
+            gameMode = true;
+            
+        }
+        
+        resetKart();
+        cameraRotation = 0;
+        changeCamera(kart.position, kart.position, vectUp);
+        console.log("Apertou no botão");
+    }
+
     //funcao responsavel pelos comandos com teclado
     function keyboardUpdate() {
         keyboard.update();
         var delta = clock.getDelta();
 
         let speedPositive = kartProps.currentSpeed >= 0;
+
+        if(keyboard.down("space")) {
+            changeMode();
+            
+        }  
 
         // Movimentação do kart
         if (gameMode) {
@@ -506,6 +540,8 @@ function main() {
             }
             var moveDistance = kartProps.currentSpeed * delta;
             kart.translateX(moveDistance);
+
+
 
             if (keyboard.pressed("left")) {
                 if (kartProps.currentSpeed != 0) {

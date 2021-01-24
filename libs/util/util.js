@@ -128,6 +128,8 @@ class InfoBox {
   show() {
     document.body.appendChild(this.infoBox);
   }
+
+  
 }
 
 /**
