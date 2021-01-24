@@ -52,8 +52,7 @@ function main() {
         y: 0,
         z: 2,
     };
-    var objectRotacaoFinal = {
-    };
+    var objectRotacaoFinal = {};
 
     var kartProps = {
         initialPosition: new THREE.Vector3(0, 0, 1.75),
@@ -66,9 +65,9 @@ function main() {
         wheelsSpeedRotation: 6,
         brakeAccelerationFactor: 1.2,
         rotateAngle: 2,
-    }
-    
-    var kartPosicaoInicial = new THREE.Vector3(0, 0, 1.75)
+    };
+
+    var kartPosicaoInicial = new THREE.Vector3(0, 0, 1.75);
     var wheelsRotation = 0;
     var wheelsMaxRotation = 35;
     var cameraRotation = 0;
@@ -85,19 +84,17 @@ function main() {
 
     // Use this to show information onscreen
 
-    
     controls = new InfoBox();
     controls.add("Comandos Modo Jogo");
     controls.add("Use as setas para movimentar o kart");
     controls.add("Use o scroll do mouse/botao esquerdo para dar zoom");
     controls.addParagraph();
-    controls.add("Comandos Modo Inspeção");    
+    controls.add("Comandos Modo Inspeção");
     controls.add("Use o mouse para inspecionar o carro");
     controls.add("Use o scroll do mouse para dar zoom");
     controls.addParagraph();
     controls.add("Aperte Espaço para Trocar de Modo");
     controls.show();
-    
 
     // Listen window size changes
     window.addEventListener(
@@ -113,7 +110,7 @@ function main() {
         stats.update(); // Update FPS
         trackballControls.update(); // Enable mouse movements
         keyboardUpdate();
-        if(gameMode){
+        if (gameMode) {
             changeCamera(kart.position, kart.position, vectUp);
         }
         moveObject(object);
@@ -378,7 +375,11 @@ function main() {
     // Inicio funcao auxiliar para ajudar a posicionar as formas
     function moveObject(object) {
         if (!object) return;
-        object.position.set(objectPosicaoFinal.x, objectPosicaoFinal.y, objectPosicaoFinal.z);
+        object.position.set(
+            objectPosicaoFinal.x,
+            objectPosicaoFinal.y,
+            objectPosicaoFinal.z
+        );
         object.rotation.set(
             degreesToRadians(objectRotacaoFinal.x),
             degreesToRadians(objectRotacaoFinal.y),
@@ -425,7 +426,7 @@ function main() {
 
         var obj = {
             "Modo Jogo": function () {
-                if(gameMode){
+                if (gameMode) {
                     scene.remove(plane);
                     scene.remove(line);
                     scene.remove(axesHelper);
@@ -480,34 +481,30 @@ function main() {
         gui.add(obj, "Modo Jogo");
     }
 
-
-    function resetKart(){
+    function resetKart() {
         kart.position.copy(kartProps.initialPosition);
         kart.rotation.set(0, 0, degreesToRadians(kartProps.angleRotationZ));
         kartProps.currentSpeed = 0;
     }
 
-
     //trocar modo de camera
     function changeMode() {
-        if(gameMode){
+        if (gameMode) {
             scene.remove(plane);
             scene.remove(line);
             scene.remove(axesHelper);
             gameMode = false;
-            
         } else {
             scene.add(axesHelper);
             scene.add(plane);
             scene.add(line);
             gameMode = true;
-            
         }
-        
+
         resetKart();
         cameraRotation = 0;
+        camera.position.z = 15;
         changeCamera(kart.position, kart.position, vectUp);
-        console.log("Apertou no botão");
     }
 
     //funcao responsavel pelos comandos com teclado
@@ -517,17 +514,25 @@ function main() {
 
         let speedPositive = kartProps.currentSpeed >= 0;
 
-        if(keyboard.down("space")) {
+        if (keyboard.down("space")) {
             changeMode();
-            
-        }  
+        }
 
         // Movimentação do kart
         if (gameMode) {
-            if (keyboard.pressed("up") && kartProps.currentSpeed < kartProps.maxSpeed) {
+            if (
+                keyboard.pressed("up") &&
+                kartProps.currentSpeed < kartProps.maxSpeed
+            ) {
                 kartProps.currentSpeed += kartProps.acceleration;
-            } else if (keyboard.pressed("down") && kartProps.currentSpeed > -kartProps.maxSpeed) {
-                kartProps.currentSpeed -= kartProps.acceleration * kartProps.brakeAccelerationFactor * 1.2;
+            } else if (
+                keyboard.pressed("down") &&
+                kartProps.currentSpeed > -kartProps.maxSpeed
+            ) {
+                kartProps.currentSpeed -=
+                    kartProps.acceleration *
+                    kartProps.brakeAccelerationFactor *
+                    1.2;
             } else if (kartProps.currentSpeed != 0) {
                 if (kartProps.currentSpeed > -1 && kartProps.currentSpeed < 1) {
                     kartProps.currentSpeed = 0;
@@ -541,8 +546,6 @@ function main() {
             var moveDistance = kartProps.currentSpeed * delta;
             kart.translateX(moveDistance);
 
-
-
             if (keyboard.pressed("left")) {
                 if (kartProps.currentSpeed != 0) {
                     cameraRotation -= degreesToRadians(
@@ -550,7 +553,9 @@ function main() {
                     );
                     kart.rotateOnAxis(
                         new THREE.Vector3(0, 0, 1),
-                        degreesToRadians(kartProps.rotateAngle * speedPositive ? 1 : -1)
+                        degreesToRadians(
+                            kartProps.rotateAngle * speedPositive ? 1 : -1
+                        )
                     );
                 }
                 if (wheelsRotation < wheelsMaxRotation) {
@@ -563,9 +568,26 @@ function main() {
                     );
                     kart.rotateOnAxis(
                         new THREE.Vector3(0, 0, 1),
-                        -degreesToRadians(kartProps.rotateAngle * speedPositive ? 1 : -1)
+                        -degreesToRadians(
+                            kartProps.rotateAngle * speedPositive ? 1 : -1
+                        )
                     );
                 }
+                if (wheelsRotation > -wheelsMaxRotation) {
+                    wheelsRotation -= kartProps.wheelsSpeedRotation;
+                }
+            } else {
+                if (wheelsRotation != 0) {
+                    let factor = wheelsRotation > 0 ? -1 : 1;
+                    wheelsRotation += kartProps.rotateAngle * factor * 2;
+                }
+            }
+        } else  {
+            if (keyboard.pressed("left")) {
+                if (wheelsRotation < wheelsMaxRotation) {
+                    wheelsRotation += kartProps.wheelsSpeedRotation;
+                }
+            } else if (keyboard.pressed("right")) {
                 if (wheelsRotation > -wheelsMaxRotation) {
                     wheelsRotation -= kartProps.wheelsSpeedRotation;
                 }
