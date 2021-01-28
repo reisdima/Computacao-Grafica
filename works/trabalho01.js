@@ -56,26 +56,23 @@ function main() {
     };
 
     var kartProps = {
-        initialPosition: new THREE.Vector3(0, 0, 1.75),
-        angleRotationZ: 90,
-        currentSpeed: 0,
-        wheelsRotations: 6,
-        acceleration: 1,
-        maxSpeed: 70,
-        rotationSpeed: 2,
-        wheelsSpeedRotation: 6,
-        brakeAccelerationFactor: 1.2,
-        rotateAngle: 2,
+        initialPosition: new THREE.Vector3(0, 0, 1.75), 
+        angleRotationZ: 90, //angulo inicial 
+        currentSpeed: 0, // velocidade atual
+        acceleration: 1, // aceleracao
+        maxSpeed: 70,// velocidade maxima      
+        wheelsSpeedRotation: 6,  //velocidade de rotação da roda
+        brakeAccelerationFactor: 1.2, // freiar mais rapido do que acelerar
+        rotateAngle: 2, //velocidade de rotacao do carro
     }
     
     var kartPosicaoInicial = new THREE.Vector3(0, 0, 1.75)
-    var wheelsRotation = 0;
-    var wheelsMaxRotation = 35;
-    var cameraRotation = 0;
+    var wheelsRotation = 0; //rotacao atual das rodas
+    var wheelsMaxRotation = 35; //o maximo que ela vai rotacionar
+    var cameraRotation = 0; // posicionamento da camera
     var gameMode = true;
 
-    var kartBody = {};
-    var kartSpeed = 0;
+    var kartBody = {}; 
 
     kartBody = createKart();
     var object = kartBody.object;
@@ -114,10 +111,10 @@ function main() {
         trackballControls.update(); // Enable mouse movements
         keyboardUpdate();
         if(gameMode){
-            changeCamera(kart.position, kart.position, vectUp);
+            changeCamera(kart.position, kart.position, vectUp); //atualiza posicao da camera
         }
-        moveObject(object);
-        moveKart();
+        moveObject(object); //atualizar posicao do objeto auxiliar
+        moveKart(); //atualiza a rotação das rodas
         lightFollowingCamera(light, camera);
         requestAnimationFrame(render);
         renderer.render(scene, camera); // Render scene
@@ -513,7 +510,7 @@ function main() {
     //funcao responsavel pelos comandos com teclado
     function keyboardUpdate() {
         keyboard.update();
-        var delta = clock.getDelta();
+        var delta = clock.getDelta(); 
 
         let speedPositive = kartProps.currentSpeed >= 0;
 
@@ -525,27 +522,27 @@ function main() {
         // Movimentação do kart
         if (gameMode) {
             if (keyboard.pressed("up") && kartProps.currentSpeed < kartProps.maxSpeed) {
-                kartProps.currentSpeed += kartProps.acceleration;
-            } else if (keyboard.pressed("down") && kartProps.currentSpeed > -kartProps.maxSpeed) {
+                kartProps.currentSpeed += kartProps.acceleration;  //aumenta velocidade
+            } else if (keyboard.pressed("down") && kartProps.currentSpeed > -kartProps.maxSpeed) { //diminui velocidade
                 kartProps.currentSpeed -= kartProps.acceleration * kartProps.brakeAccelerationFactor * 1.2;
-            } else if (kartProps.currentSpeed != 0) {
-                if (kartProps.currentSpeed > -1 && kartProps.currentSpeed < 1) {
-                    kartProps.currentSpeed = 0;
-                } else {
-                    kartProps.currentSpeed +=
+            } else if (kartProps.currentSpeed != 0) {  // diminui a velocidade do carro ate 0 
+                if (kartProps.currentSpeed > -1 && kartProps.currentSpeed < 1) { // se tiver uma velocidade entre -1 e 1 zera direto
+                    kartProps.currentSpeed = 0;  
+                } else {  //diminui a velocidade
+                    kartProps.currentSpeed += 
                         kartProps.acceleration * speedPositive
                             ? -kartProps.brakeAccelerationFactor
                             : kartProps.brakeAccelerationFactor;
                 }
             }
-            var moveDistance = kartProps.currentSpeed * delta;
+            var moveDistance = kartProps.currentSpeed * delta; // move o kart 
             kart.translateX(moveDistance);
 
 
 
             if (keyboard.pressed("left")) {
-                if (kartProps.currentSpeed != 0) {
-                    cameraRotation -= degreesToRadians(
+                if (kartProps.currentSpeed != 0) { // so rotaciona se a velocidade for != 0 
+                    cameraRotation -= degreesToRadians( //usa camerarotation pra ver o angulo de rotacao
                         kartProps.rotateAngle * speedPositive ? 1 : -1
                     );
                     kart.rotateOnAxis(
@@ -553,7 +550,7 @@ function main() {
                         degreesToRadians(kartProps.rotateAngle * speedPositive ? 1 : -1)
                     );
                 }
-                if (wheelsRotation < wheelsMaxRotation) {
+                if (wheelsRotation < wheelsMaxRotation) { //movimentacao da roda
                     wheelsRotation += kartProps.wheelsSpeedRotation;
                 }
             } else if (keyboard.pressed("right")) {
@@ -569,18 +566,16 @@ function main() {
                 if (wheelsRotation > -wheelsMaxRotation) {
                     wheelsRotation -= kartProps.wheelsSpeedRotation;
                 }
-            } else {
+            } else { //voltar com a roda pro eixo alinhado
                 if (wheelsRotation != 0) {
                     let factor = wheelsRotation > 0 ? -1 : 1;
                     wheelsRotation += kartProps.rotateAngle * factor * 2;
                 }
             }
         }
-        // Reset Kart
-        // if (keyboard.pressed("space")) kart.position.set(0.0, 0.0, 2.0);
     }
 
-    // funcao utilizada para manter a posicao da camera
+    // funcao utilizada para atualizar a posicao da camera
     function changeCamera(position, look, up) {
         var rotY = Math.cos(cameraRotation);
         var rotX = Math.sin(cameraRotation);
