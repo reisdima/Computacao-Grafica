@@ -71,6 +71,8 @@ function main() {
   // Default light position, color, ambient color and intensity
   var lights = createLights();
   console.log(lights);
+  var rotationSpeed = 1.0;
+  var rotateObject = false;
 
   var ambientColor = "rgb(50,50,50)";
 
@@ -129,7 +131,7 @@ function main() {
 
   // Update light position of the current light
   function updateLightPosition() {
-    lights.forEach(light => {
+    lights.forEach((light) => {
       light.lightSphere.position.copy(light.position);
       light.light.position.copy(light.position);
     });
@@ -143,6 +145,12 @@ function main() {
     //     ", " +
     //     lightPosition.z.toFixed(2)
     // );
+  }
+
+  function updateObject(object) {
+    if (rotateObject) {
+      object.rotateY(degreesToRadians(rotationSpeed));
+    }
   }
 
   // Update light intensity of the current light
@@ -166,6 +174,7 @@ function main() {
       this.showRedLight = true;
       this.showGreenLight = true;
       this.showBlueLight = true;
+      this.rotateObject = false;
 
       this.onViewAxes = function () {
         axesHelper.visible = this.viewAxes;
@@ -203,6 +212,9 @@ function main() {
       this.showBlue = function () {
         lights[2].light.visible = this.showBlueLight;
         lights[2].lightSphere.visible = this.showBlueLight;
+      };
+      this.toggleRotation = function () {
+        rotateObject = this.rotateObject;
       };
       this.onChangeLight = function () {
         // lightArray[activeLight].visible = false;
@@ -296,33 +308,34 @@ function main() {
       .onChange(function (e) {
         controls.showBlue();
       });
+    gui
+      .add(controls, "rotateObject", true)
+      .name("Rotacionar")
+      .onChange(function (e) {
+        controls.toggleRotation();
+      });
   }
 
   function keyboardUpdate() {
     keyboard.update();
     if (keyboard.pressed("D")) {
-      lightPosition.x += 0.05;
-      updateLightPosition();
+
+      lights[0].position.z += 0.05;
     }
     if (keyboard.pressed("A")) {
-      lightPosition.x -= 0.05;
-      updateLightPosition();
+      lights[0].position.z -= 0.05;
     }
     if (keyboard.pressed("W")) {
-      lightPosition.y += 0.05;
-      updateLightPosition();
+      lights[1].position.x += 0.05;
     }
     if (keyboard.pressed("S")) {
-      lightPosition.y -= 0.05;
-      updateLightPosition();
+      lights[1].position.x -= 0.05;
     }
     if (keyboard.pressed("E")) {
-      lightPosition.z -= 0.05;
-      updateLightPosition();
+      lights[2].position.x -= 0.05;
     }
     if (keyboard.pressed("Q")) {
-      lightPosition.z += 0.05;
-      updateLightPosition();
+      lights[2].position.x += 0.05;
     }
   }
 
@@ -341,6 +354,7 @@ function main() {
     keyboardUpdate();
     updateLightPosition();
     requestAnimationFrame(render);
+    updateObject(obj);
     renderer.render(scene, camera);
   }
 
@@ -385,13 +399,13 @@ function main() {
         10,
         lightPosition,
         lightColor
-        ),
-      });
-      
-      lightPosition = new THREE.Vector3(-1.0, 2.0, 1.5);
-      lightColor = "rgb(20, 255, 20)";
-      spotLight = new THREE.SpotLight(lightColor);
-      lights.push({
+      ),
+    });
+
+    lightPosition = new THREE.Vector3(-1.0, 2.0, 1.5);
+    lightColor = "rgb(20, 255, 20)";
+    spotLight = new THREE.SpotLight(lightColor);
+    lights.push({
       position: lightPosition,
       light: setSpotLight(spotLight, lightPosition),
       color: "rgb(20, 255, 20)",
@@ -402,12 +416,12 @@ function main() {
         10,
         lightPosition,
         lightColor
-        ),
-      });
-      
-      lightPosition = new THREE.Vector3(2.0, 2.0, -1.5);
-      lightColor = "rgb(20, 20, 255)";
-      spotLight = new THREE.SpotLight(lightColor);
+      ),
+    });
+
+    lightPosition = new THREE.Vector3(2.0, 2.0, -1.5);
+    lightColor = "rgb(20, 20, 255)";
+    spotLight = new THREE.SpotLight(lightColor);
     lights.push({
       position: lightPosition,
       light: setSpotLight(spotLight, lightPosition),
