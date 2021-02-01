@@ -163,12 +163,15 @@ function main() {
       this.lightIntensity = lightIntensity;
       this.lightType = "Spot";
       this.ambientLight = true;
+      this.showRedLight = true;
+      this.showGreenLight = true;
+      this.showBlueLight = true;
 
       this.onViewAxes = function () {
         axesHelper.visible = this.viewAxes;
       };
       this.onEnableAmbientLight = function () {
-        // ambientLight.visible = this.ambientLight;
+        ambientLight.visible = this.ambientLight;
       };
       this.updateColor = function () {
         // material.color.set(this.color);
@@ -188,6 +191,18 @@ function main() {
       };
       this.moveBlue = function () {
         lights[2].position.x = this.blueLightPosition;
+      };
+      this.showRed = function () {
+        lights[0].light.visible = this.showRedLight;
+        lights[0].lightSphere.visible = this.showRedLight;
+      };
+      this.showGreen = function () {
+        lights[1].light.visible = this.showGreenLight;
+        lights[1].lightSphere.visible = this.showGreenLight;
+      };
+      this.showBlue = function () {
+        lights[2].light.visible = this.showBlueLight;
+        lights[2].lightSphere.visible = this.showBlueLight;
       };
       this.onChangeLight = function () {
         // lightArray[activeLight].visible = false;
@@ -262,6 +277,24 @@ function main() {
       .name("Ambient Light")
       .onChange(function (e) {
         controls.onEnableAmbientLight();
+      });
+    gui
+      .add(controls, "showRedLight", true)
+      .name("Mostrar luz vermelha")
+      .onChange(function (e) {
+        controls.showRed();
+      });
+    gui
+      .add(controls, "showGreenLight", true)
+      .name("Mostrar luz verde")
+      .onChange(function (e) {
+        controls.showGreen();
+      });
+    gui
+      .add(controls, "showBlueLight", true)
+      .name("Mostrar luz azul")
+      .onChange(function (e) {
+        controls.showBlue();
       });
   }
 
