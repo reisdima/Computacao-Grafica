@@ -50,7 +50,7 @@ function main()
   var pointCloud = null;
   var spGroup = null;
   var points = null;
-  var objectSize = 10;
+  var objectSize = 4;
   var convexGeometry = null;
   var object = null;
   var pointCloudVisibility = true;
@@ -63,7 +63,7 @@ function main()
   buildInterface();
   render();
 
-  function generatePoints(numberOfPoints)
+ function generatePoints(numberOfPoints)
   {
     var points = [];
     var maxSize = objectSize;
@@ -108,7 +108,7 @@ function main()
     convexGeometry = new THREE.ConvexBufferGeometry(localPoints);
 
     object = new THREE.Mesh(convexGeometry, objectMaterial);
-       object.castShadow = castShadow;
+      // object.castShadow = castShadow;
        object.visible = objectVisibility;
     scene.add(object);
 
@@ -187,7 +187,7 @@ function main()
     gui.add(controls, 'objectSize', 2, 20)
       .name("Object Max Size")
       .onChange(function(e) { controls.rebuildGeometry();});
-    gui.add(controls, 'numPoints', 10, 50)
+    gui.add(controls, 'numPoints', 4, 50)
       .name("Number Of Points")
       .onChange(function(e) { controls.rebuildGeometry();});
   }

@@ -52,27 +52,29 @@ function main() {
         y: 0,
         z: 2,
     };
-    var objectRotacaoFinal = {
-    };
+    var objectRotacaoFinal = {};
 
     var kartProps = {
-        initialPosition: new THREE.Vector3(0, 0, 1.75), 
-        angleRotationZ: 90, //angulo inicial 
-        currentSpeed: 0, // velocidade atual
-        acceleration: 1, // aceleracao
-        maxSpeed: 70,// velocidade maxima      
-        wheelsSpeedRotation: 6,  //velocidade de rotação da roda
-        brakeAccelerationFactor: 1.2, // freiar mais rapido do que acelerar
-        rotateAngle: 2, //velocidade de rotacao do carro
-    }
-    
-    var kartPosicaoInicial = new THREE.Vector3(0, 0, 1.75)
-    var wheelsRotation = 0; //rotacao atual das rodas
-    var wheelsMaxRotation = 35; //o maximo que ela vai rotacionar
-    var cameraRotation = 0; // posicionamento da camera
+        initialPosition: new THREE.Vector3(0, 0, 1.75),
+        angleRotationZ: 90,
+        currentSpeed: 0,
+        wheelsRotations: 6,
+        acceleration: 1,
+        maxSpeed: 70,
+        rotationSpeed: 2,
+        wheelsSpeedRotation: 6,
+        brakeAccelerationFactor: 1.2,
+        rotateAngle: 2,
+    };
+
+    var kartPosicaoInicial = new THREE.Vector3(0, 0, 1.75);
+    var wheelsRotation = 0;
+    var wheelsMaxRotation = 35;
+    var cameraRotation = 0;
     var gameMode = true;
 
-    var kartBody = {}; 
+    var kartBody = {};
+    var kartSpeed = 0;
 
     kartBody = createKart();
     var object = kartBody.object;
@@ -82,19 +84,17 @@ function main() {
 
     // Use this to show information onscreen
 
-    
     controls = new InfoBox();
     controls.add("Comandos Modo Jogo");
     controls.add("Use as setas para movimentar o kart");
     controls.add("Use o scroll do mouse/botao esquerdo para dar zoom");
     controls.addParagraph();
-    controls.add("Comandos Modo Inspeção");    
+    controls.add("Comandos Modo Inspeção");
     controls.add("Use o mouse para inspecionar o carro");
     controls.add("Use o scroll do mouse para dar zoom");
     controls.addParagraph();
     controls.add("Aperte Espaço para Trocar de Modo");
     controls.show();
-    
 
     // Listen window size changes
     window.addEventListener(
@@ -110,11 +110,12 @@ function main() {
         stats.update(); // Update FPS
         trackballControls.update(); // Enable mouse movements
         keyboardUpdate();
-        if(gameMode){
-            changeCamera(kart.position, kart.position, vectUp); //atualiza posicao da camera
+        if (gameMode) {
+            changeCamera(kart.position, kart.position, vectUp);
         }
-        moveObject(object); //atualizar posicao do objeto auxiliar
-        moveKart(); //atualiza a rotação das rodas
+        moveObject(object);
+        moveKart();
+        //montanhaUm(80,30);
         lightFollowingCamera(light, camera);
         requestAnimationFrame(render);
         renderer.render(scene, camera); // Render scene
@@ -173,6 +174,15 @@ function main() {
         const torus = new THREE.Mesh(geometry, material);
         torus.position.set(0.0, 0.0, 0.0);
         return torus;
+    }
+
+    function createPoste(position) {
+        var poste = createCylinder(0.5,0.5,20,0);
+        poste.castShadow = true;
+        poste.rotation.set(degreesToRadians(90),0,0);
+        poste.position.copy(position);
+
+        return poste;
     }
 
     // fim funcoes para criar as formas basicas
@@ -372,10 +382,135 @@ function main() {
 
     // fim funcao para criar kart e suas partes
 
+    //--------------------------------- Criar Montanhas //---------------------------------//
+
+    //propiedades do objeto
+    var objColor = "rgb(100, 70, 20)";
+    var objOpacity = 1;
+
+  // Object Material
+  var objectMaterial = new THREE.MeshPhongMaterial({
+    color: objColor,
+  	opacity: objOpacity,
+  	transparent: true});
+
+  //----------------------------------
+  // Create Convex Geometry
+  //----------------------------------
+  var sphereGeom = new THREE.SphereGeometry(0.2); // Sphere to represent points
+  var sphereMaterial = new THREE.MeshPhongMaterial({color:"rgb(255,255,0)"});
+
+  // Global variables to be removed from memory each interaction
+  var pointCloud = null;
+  var spGroup = null;
+  var convexGeometry = null;
+  var object = null;
+  var pointCloudVisibility = true;
+  var objectVisibility = true;
+  var castShadow = true;
+
+    // Create convex object the first time
+    criaMontanhaUm();
+    // criacao dos postes dew luz
+
+    var posteUm = createPoste(new THREE.Vector3(20,30,10.5));
+    scene.add(posteUm);
+
+    var posteDois = createPoste(new THREE.Vector3(-20,15,10.5));
+    scene.add(posteDois);
+
+    var posteTres = createPoste(new THREE.Vector3(-20,5,10.5));
+    scene.add(posteTres);
+
+    var posteQuatro = createPoste(new THREE.Vector3(20,-70,10.5));
+    scene.add(posteQuatro);
+
+    var posteCinco = createPoste(new THREE.Vector3(-20,30,10.5));
+    scene.add(posteCinco);
+
+    var posteSeis = createPoste(new THREE.Vector3(20,150,10.5));
+    scene.add(posteSeis);
+
+    var posteSete = createPoste(new THREE.Vector3(20,-180,10.5));
+    scene.add(posteSete);
+
+    var posteOito = createPoste(new THREE.Vector3(-20,-30,10.5));
+    scene.add(posteOito);
+
+ function generatePoints()
+  {
+    var points = [];
+
+
+      //base    
+      points.push(new THREE.Vector3(5, 30, 0));
+      points.push(new THREE.Vector3(2, -30, 0));
+      points.push(new THREE.Vector3(-25, -25, 0));
+      points.push(new THREE.Vector3(50, 15, 0));
+      points.push(new THREE.Vector3(45, 5, 0));
+      points.push(new THREE.Vector3(-45, 5, 0));
+      points.push(new THREE.Vector3(5, 20, 0));
+      points.push(new THREE.Vector3(2, 2, 0));
+      points.push(new THREE.Vector3(45, -25, 0));
+      points.push(new THREE.Vector3(-45, -25, 0));
+
+      //partes mais altas
+      points.push(new THREE.Vector3(35, 5, 19));
+      points.push(new THREE.Vector3(-5, -5, 38));
+      points.push(new THREE.Vector3(25, 10, 7));
+      points.push(new THREE.Vector3(5, 5, 38));
+      points.push(new THREE.Vector3(-20, -2, 19));
+      points.push(new THREE.Vector3(20, 2, 28));
+      points.push(new THREE.Vector3(-20, -2, 28));
+      points.push(new THREE.Vector3(-35, 5, 8));
+      points.push(new THREE.Vector3(5, 2, 45));
+      points.push(new THREE.Vector3(35, 5, 8));
+      points.push(new THREE.Vector3(5, 4, 10));
+
+    spGroup = new THREE.Geometry();
+    spMesh = new THREE.Mesh(sphereGeom);
+    points.forEach(function (point) {
+      spMesh.position.set(point.x, point.y, point.z);
+      spMesh.updateMatrix();
+      spGroup.merge(spMesh.geometry, spMesh.matrix);
+    });
+
+    pointCloud = new THREE.Mesh(spGroup, sphereMaterial);
+     // pointCloud.castShadow = castShadow;
+      pointCloud.visible = pointCloudVisibility;
+      pointCloud.position.set(-150,50,0);
+    scene.add(pointCloud);
+
+    return points; 
+  }
+
+  function criaMontanhaUm( )
+  {
+
+    // First, create the point vector to be used by the convex hull algorithm
+    var localPoints = generatePoints();
+
+    // Then, build the convex geometry with the generated points
+    convexGeometry = new THREE.ConvexBufferGeometry(localPoints);
+
+    var montanhaMaiorUm = new THREE.Mesh(convexGeometry, objectMaterial);
+    montanhaMaiorUm.visible = true;
+    montanhaMaiorUm.position.set(-150,50,0);
+    scene.add(montanhaMaiorUm); 
+
+  }
+  ///////////////// FIM MOnTANHA
+
+    
+
     // Inicio funcao auxiliar para ajudar a posicionar as formas
     function moveObject(object) {
         if (!object) return;
-        object.position.set(objectPosicaoFinal.x, objectPosicaoFinal.y, objectPosicaoFinal.z);
+        object.position.set(
+            objectPosicaoFinal.x,
+            objectPosicaoFinal.y,
+            objectPosicaoFinal.z
+        );
         object.rotation.set(
             degreesToRadians(objectRotacaoFinal.x),
             degreesToRadians(objectRotacaoFinal.y),
@@ -422,7 +557,7 @@ function main() {
 
         var obj = {
             "Modo Jogo": function () {
-                if(gameMode){
+                if (gameMode) {
                     scene.remove(plane);
                     scene.remove(line);
                     scene.remove(axesHelper);
@@ -477,80 +612,84 @@ function main() {
         gui.add(obj, "Modo Jogo");
     }
 
-
-    function resetKart(){
+    function resetKart() {
         kart.position.copy(kartProps.initialPosition);
         kart.rotation.set(0, 0, degreesToRadians(kartProps.angleRotationZ));
         kartProps.currentSpeed = 0;
     }
 
-
     //trocar modo de camera
     function changeMode() {
-        if(gameMode){
+        if (gameMode) {
             scene.remove(plane);
             scene.remove(line);
             scene.remove(axesHelper);
             gameMode = false;
-            
         } else {
             scene.add(axesHelper);
             scene.add(plane);
             scene.add(line);
             gameMode = true;
-            
         }
-        
+
         resetKart();
         cameraRotation = 0;
+        camera.position.z = 15;
         changeCamera(kart.position, kart.position, vectUp);
-        console.log("Apertou no botão");
     }
 
     //funcao responsavel pelos comandos com teclado
     function keyboardUpdate() {
         keyboard.update();
-        var delta = clock.getDelta(); 
+        var delta = clock.getDelta();
 
         let speedPositive = kartProps.currentSpeed >= 0;
 
-        if(keyboard.down("space")) {
+        if (keyboard.down("space")) {
             changeMode();
-            
-        }  
+        }
 
         // Movimentação do kart
         if (gameMode) {
-            if (keyboard.pressed("up") && kartProps.currentSpeed < kartProps.maxSpeed) {
-                kartProps.currentSpeed += kartProps.acceleration;  //aumenta velocidade
-            } else if (keyboard.pressed("down") && kartProps.currentSpeed > -kartProps.maxSpeed) { //diminui velocidade
-                kartProps.currentSpeed -= kartProps.acceleration * kartProps.brakeAccelerationFactor * 1.2;
-            } else if (kartProps.currentSpeed != 0) {  // diminui a velocidade do carro ate 0 
-                if (kartProps.currentSpeed > -1 && kartProps.currentSpeed < 1) { // se tiver uma velocidade entre -1 e 1 zera direto
-                    kartProps.currentSpeed = 0;  
-                } else {  //diminui a velocidade
-                    kartProps.currentSpeed += 
+            if (
+                keyboard.pressed("up") &&
+                kartProps.currentSpeed < kartProps.maxSpeed
+            ) {
+                kartProps.currentSpeed += kartProps.acceleration;
+            } else if (
+                keyboard.pressed("down") &&
+                kartProps.currentSpeed > -kartProps.maxSpeed
+            ) {
+                kartProps.currentSpeed -=
+                    kartProps.acceleration *
+                    kartProps.brakeAccelerationFactor *
+                    1.2;
+            } else if (kartProps.currentSpeed != 0) {
+                if (kartProps.currentSpeed > -1 && kartProps.currentSpeed < 1) {
+                    kartProps.currentSpeed = 0;
+                } else {
+                    kartProps.currentSpeed +=
                         kartProps.acceleration * speedPositive
                             ? -kartProps.brakeAccelerationFactor
                             : kartProps.brakeAccelerationFactor;
                 }
             }
-            var moveDistance = kartProps.currentSpeed * delta; // move o kart 
+            var moveDistance = kartProps.currentSpeed * delta;
             kart.translateX(moveDistance);
 
-
-
             if (keyboard.pressed("left")) {
-                if (kartProps.currentSpeed != 0) { // so rotaciona se a velocidade for != 0 
-                    cameraRotation -= degreesToRadians( //usa camerarotation pra ver o angulo de rotacao
+                if (kartProps.currentSpeed != 0) {
+                    cameraRotation -= degreesToRadians(
                         kartProps.rotateAngle * speedPositive ? 1 : -1
                     );
                     kart.rotateOnAxis(
                         new THREE.Vector3(0, 0, 1),
-                        degreesToRadians(kartProps.rotateAngle * speedPositive ? 1 : -1)
+                        degreesToRadians(
+                            kartProps.rotateAngle * speedPositive ? 1 : -1
+                        )
                     );
                 }
-                if (wheelsRotation < wheelsMaxRotation) { //movimentacao da roda
+                if (wheelsRotation < wheelsMaxRotation) {
                     wheelsRotation += kartProps.wheelsSpeedRotation;
                 }
             } else if (keyboard.pressed("right")) {
@@ -560,22 +699,41 @@ function main() {
                     );
                     kart.rotateOnAxis(
                         new THREE.Vector3(0, 0, 1),
-                        -degreesToRadians(kartProps.rotateAngle * speedPositive ? 1 : -1)
+                        -degreesToRadians(
+                            kartProps.rotateAngle * speedPositive ? 1 : -1
+                        )
                     );
                 }
                 if (wheelsRotation > -wheelsMaxRotation) {
                     wheelsRotation -= kartProps.wheelsSpeedRotation;
                 }
-            } else { //voltar com a roda pro eixo alinhado
+            } else {
+                if (wheelsRotation != 0) {
+                    let factor = wheelsRotation > 0 ? -1 : 1;
+                    wheelsRotation += kartProps.rotateAngle * factor * 2;
+                }
+            }
+        } else  {
+            if (keyboard.pressed("left")) {
+                if (wheelsRotation < wheelsMaxRotation) {
+                    wheelsRotation += kartProps.wheelsSpeedRotation;
+                }
+            } else if (keyboard.pressed("right")) {
+                if (wheelsRotation > -wheelsMaxRotation) {
+                    wheelsRotation -= kartProps.wheelsSpeedRotation;
+                }
+            } else {
                 if (wheelsRotation != 0) {
                     let factor = wheelsRotation > 0 ? -1 : 1;
                     wheelsRotation += kartProps.rotateAngle * factor * 2;
                 }
             }
         }
+        // Reset Kart
+        // if (keyboard.pressed("space")) kart.position.set(0.0, 0.0, 2.0);
     }
 
-    // funcao utilizada para atualizar a posicao da camera
+    // funcao utilizada para manter a posicao da camera
     function changeCamera(position, look, up) {
         var rotY = Math.cos(cameraRotation);
         var rotX = Math.sin(cameraRotation);
