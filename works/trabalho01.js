@@ -112,7 +112,7 @@ function main() {
         stats.update(); // Update FPS
         trackballControls.update(); // Enable mouse movements
         keyboardUpdate();
-        if(gameMode){
+        if (gameMode) {
             moveCamera(kart.position, kart.position, vectUp);
         }
         moveObject(object);
@@ -183,6 +183,19 @@ function main() {
         poste.castShadow = true;
         poste.rotation.set(degreesToRadians(90), 0, 0);
         poste.position.copy(position);
+
+        let lightPosition = new THREE.Vector3(0, 0, 0);
+        lightPosition.copy(position);
+        lightPosition.z += 10
+        let lightSphere = createLightSphere(scene, 0.5, 10, 10, lightPosition)//.translateZ(10);
+        let lightColor = "rgb(255,255,255)";
+        let pointLight = new THREE.PointLight(lightColor);
+        pointLight.position.copy(lightPosition);
+        pointLight.name = "Point Light";
+        pointLight.castShadow = true;
+        pointLight.intensity = 0.1;
+        pointLight.visible = true;
+        poste.add(pointLight);
 
         return poste;
     }
@@ -429,7 +442,7 @@ function main() {
     postes.push(createPoste(new THREE.Vector3(20, -180, 10.5)));
     postes.push(createPoste(new THREE.Vector3(-20, -30, 10.5)));
 
-    postes.forEach(poste => {
+    postes.forEach((poste) => {
         scene.add(poste);
     });
 
@@ -540,7 +553,7 @@ function main() {
 
         let moveDistance = kartProps.currentSpeed * delta;
         kart.translateX(moveDistance);
-        if(gameMode){
+        if (gameMode) {
             kartProps.currentPosition.copy(kart.position);
         }
 
@@ -641,20 +654,26 @@ function main() {
         // kart.rotation.set(0, 0, degreesToRadians(kartProps.angleRotationZ));
         // kartProps.currentSpeed = 0;
     }
-    
+
     //trocar modo de camera
     function changeMode() {
         if (gameMode) {
-            kart.position.copy(kartProps.initialPosition)
+            kart.position.copy(kartProps.initialPosition);
             scene.remove(plane);
             scene.remove(line);
             scene.remove(axesHelper);
+            postes.forEach((poste) => {
+                scene.remove(poste);
+            });
             gameMode = false;
         } else {
-            kart.position.copy(kartProps.currentPosition)
+            kart.position.copy(kartProps.currentPosition);
             scene.add(axesHelper);
             scene.add(plane);
             scene.add(line);
+            postes.forEach((poste) => {
+                scene.add(poste);
+            });
             gameMode = true;
         }
         kartProps.currentSpeed = 0;
@@ -717,9 +736,9 @@ function main() {
                     kartProps.currentSpeed = 0;
                 } else {
                     kartProps.currentSpeed +=
-                        kartProps.acceleration * speedPositive ? -1 : 1
-                            // ? -kartProps.brakeAccelerationFactor
-                            // : kartProps.brakeAccelerationFactor;
+                        kartProps.acceleration * speedPositive ? -1 : 1;
+                    // ? -kartProps.brakeAccelerationFactor
+                    // : kartProps.brakeAccelerationFactor;
                 }
             }
 
