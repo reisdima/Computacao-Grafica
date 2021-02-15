@@ -389,7 +389,7 @@ function main() {
     var objOpacity = 1;
 
   // Object Material
-  var objectMaterial = new THREE.MeshPhongMaterial({
+  var objectMaterial = new THREE.MeshLambertMaterial({
     color: objColor,
   	opacity: objOpacity,
   	transparent: true});
