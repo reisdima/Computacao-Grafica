@@ -422,13 +422,13 @@ function main() {
     var posteTres = createPoste(new THREE.Vector3(-20,5,10.5));
     scene.add(posteTres);
 
-    var posteQuatro = createPoste(new THREE.Vector3(20,-70,10.5));
+   var posteQuatro = createPoste(new THREE.Vector3(20,-70,10.5));
     scene.add(posteQuatro);
 
-    var posteCinco = createPoste(new THREE.Vector3(-20,30,10.5));
+    var posteCinco = createPoste(new THREE.Vector3(-20,25,10.5));
     scene.add(posteCinco);
 
-    var posteSeis = createPoste(new THREE.Vector3(20,150,10.5));
+    var posteSeis = createPoste(new THREE.Vector3(20,75,10.5));
     scene.add(posteSeis);
 
     var posteSete = createPoste(new THREE.Vector3(20,-180,10.5));
@@ -437,36 +437,37 @@ function main() {
     var posteOito = createPoste(new THREE.Vector3(-20,-30,10.5));
     scene.add(posteOito);
 
- function generatePoints()
+ function generatePoints(value)
   {
     var points = [];
 
 
       //base    
-      points.push(new THREE.Vector3(5, 30, 0));
-      points.push(new THREE.Vector3(2, -30, 0));
-      points.push(new THREE.Vector3(-25, -25, 0));
-      points.push(new THREE.Vector3(50, 15, 0));
-      points.push(new THREE.Vector3(45, 5, 0));
-      points.push(new THREE.Vector3(-45, 5, 0));
-      points.push(new THREE.Vector3(5, 20, 0));
-      points.push(new THREE.Vector3(2, 2, 0));
-      points.push(new THREE.Vector3(45, -25, 0));
-      points.push(new THREE.Vector3(-45, -25, 0));
+      points.push(new THREE.Vector3(value + 5,value + 35, 0));
+      points.push(new THREE.Vector3(value +2, -value - 35, 0));
+      points.push(new THREE.Vector3(-value -25, -value -55, 0));
+      points.push(new THREE.Vector3(value + 50, value + 15, 0));
+      points.push(new THREE.Vector3(value + 45, value + 5, 0));
+      points.push(new THREE.Vector3(-value  -60, value + 5, 0));
+      points.push(new THREE.Vector3(+value  +60, value + 5, 0));
+      points.push(new THREE.Vector3(value +2, -value - 70, 0));
+      points.push(new THREE.Vector3(value + 45, -value  -25, 0));
+      points.push(new THREE.Vector3(-value -55, -value  -25, 0));
 
       //partes mais altas
-      points.push(new THREE.Vector3(35, 5, 19));
-      points.push(new THREE.Vector3(-5, -5, 38));
-      points.push(new THREE.Vector3(25, 10, 7));
-      points.push(new THREE.Vector3(5, 5, 38));
-      points.push(new THREE.Vector3(-20, -2, 19));
-      points.push(new THREE.Vector3(20, 2, 28));
-      points.push(new THREE.Vector3(-20, -2, 28));
-      points.push(new THREE.Vector3(-35, 5, 8));
-      points.push(new THREE.Vector3(5, 2, 45));
-      points.push(new THREE.Vector3(35, 5, 8));
-      points.push(new THREE.Vector3(5, 4, 10));
-
+      points.push(new THREE.Vector3(value +35, 5, 19));
+      points.push(new THREE.Vector3(-5, -5, value +35));
+      points.push(new THREE.Vector3(-value -40, 10, 30));
+      points.push(new THREE.Vector3(-value -40, 10, 30));
+     points.push(new THREE.Vector3(5, -value -19, 25));
+     points.push(new THREE.Vector3(-value -20,-value -25, 28));
+     points.push(new THREE.Vector3(value + 20, -value -20, 28));
+     points.push(new THREE.Vector3(-value -10, -15, 19));
+     points.push(new THREE.Vector3(-value -5,-value -25, 32));
+     points.push(new THREE.Vector3(value + 5,-value -25, 32));
+     points.push(new THREE.Vector3(0 , -value -25 , 35));
+      points.push(new THREE.Vector3(0, +value +25, 35));
+/*
     spGroup = new THREE.Geometry();
     spMesh = new THREE.Mesh(sphereGeom);
     points.forEach(function (point) {
@@ -478,9 +479,9 @@ function main() {
     pointCloud = new THREE.Mesh(spGroup, sphereMaterial);
      // pointCloud.castShadow = castShadow;
       pointCloud.visible = pointCloudVisibility;
-      pointCloud.position.set(-150,50,0);
+      pointCloud.position.set(0,200,0);
     scene.add(pointCloud);
-
+*/
     return points; 
   }
 
@@ -488,15 +489,40 @@ function main() {
   {
 
     // First, create the point vector to be used by the convex hull algorithm
-    var localPoints = generatePoints();
-
+    var localPointsUm = generatePoints(40);
+    var localPointsDois = generatePoints(15);
+    var localPointsTres = generatePoints(20);
+    var localPointsCinco = generatePoints(5);
+    var localPointsSeis = generatePoints(10);
     // Then, build the convex geometry with the generated points
-    convexGeometry = new THREE.ConvexBufferGeometry(localPoints);
+    convexGeometry = new THREE.ConvexBufferGeometry(localPointsUm);
+    convexGeometry2 = new THREE.ConvexBufferGeometry(localPointsDois);
+    convexGeometry3 = new THREE.ConvexBufferGeometry(localPointsTres);   
+    convexGeometry4 = new THREE.ConvexBufferGeometry(localPointsCinco);
+    convexGeometry5 = new THREE.ConvexBufferGeometry(localPointsSeis);
 
     var montanhaMaiorUm = new THREE.Mesh(convexGeometry, objectMaterial);
     montanhaMaiorUm.visible = true;
-    montanhaMaiorUm.position.set(-150,50,0);
+    montanhaMaiorUm.position.set(-80,200,0);
     scene.add(montanhaMaiorUm); 
+    var montanhaMaiorDois = new THREE.Mesh(convexGeometry2, objectMaterial);
+    montanhaMaiorDois.visible = true;
+    montanhaMaiorDois.position.set(-20,200,0);
+    scene.add(montanhaMaiorDois)
+    var montanhaMaiorTres = new THREE.Mesh(convexGeometry3, objectMaterial);
+    montanhaMaiorTres.visible = true;
+    montanhaMaiorTres.position.set(-155,200,0);
+    scene.add(montanhaMaiorTres)
+
+    var montanhaMenorUm = new THREE.Mesh(convexGeometry5, objectMaterial);
+    montanhaMenorUm.visible = true;
+    montanhaMenorUm.position.set(200,200,0);
+    scene.add(montanhaMenorUm); 
+    var montanhaMenorDois = new THREE.Mesh(convexGeometry4, objectMaterial);
+    montanhaMenorDois.visible = true;
+    montanhaMenorDois.position.set(250,220,0);
+    scene.add(montanhaMenorDois)
+
 
   }
   ///////////////// FIM MOnTANHA
