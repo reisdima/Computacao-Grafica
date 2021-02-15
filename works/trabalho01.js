@@ -14,7 +14,7 @@ function main() {
         y: 0,
         z: 1,
     };
-    changeCamera(cameraPosition, cameraDirection, vectUp);
+    moveCamera(cameraPosition, cameraDirection, vectUp);
 
     // Enable mouse rotation, pan, zoom etc.
     var trackballControls = new THREE.TrackballControls(
@@ -71,14 +71,16 @@ function main() {
     var wheelsRotation = 0;
     var wheelsMaxRotation = 35;
     var cameraRotation = 0;
+    var kartRotation = 0;
     var gameMode = true;
 
+    var object = null;
     var kartBody = {};
     var kartSpeed = 0;
 
     kartBody = createKart();
-    var object = kartBody.object;
-    var kart = kartBody.main.corpo;
+    //   var object = kartBody.object;
+    var kart = kartBody.corpo;
     scene.add(kart);
     buildInterface(object);
 
@@ -111,7 +113,7 @@ function main() {
         trackballControls.update(); // Enable mouse movements
         keyboardUpdate();
         if (gameMode) {
-            changeCamera(kart.position, kart.position, vectUp);
+            moveCamera(kart.position, kart.position, vectUp);
         }
         moveObject(object);
         moveKart();
@@ -177,9 +179,9 @@ function main() {
     }
 
     function createPoste(position) {
-        var poste = createCylinder(0.5,0.5,20,0);
+        var poste = createCylinder(0.5, 0.5, 20, 0);
         poste.castShadow = true;
-        poste.rotation.set(degreesToRadians(90),0,0);
+        poste.rotation.set(degreesToRadians(90), 0, 0);
         poste.position.copy(position);
 
         return poste;
@@ -321,10 +323,11 @@ function main() {
         kart.corpo = mainCube;
         kart.eixoFrontal = frontWheels;
 
-        return {
-            main: kart,
-            object: null,
-        };
+        // return {
+        //   main: kart,
+        //   object: null,
+        // };
+        return kart;
     }
     // criacao do volante
     function createVolante() {
@@ -388,86 +391,87 @@ function main() {
     var objColor = "rgb(100, 70, 20)";
     var objOpacity = 1;
 
-  // Object Material
-  var objectMaterial = new THREE.MeshLambertMaterial({
-    color: objColor,
-  	opacity: objOpacity,
-  	transparent: true});
+    // Object Material
+    var objectMaterial = new THREE.MeshLambertMaterial({
+        color: objColor,
+        opacity: objOpacity,
+        transparent: true,
+    });
 
-  //----------------------------------
-  // Create Convex Geometry
-  //----------------------------------
-  var sphereGeom = new THREE.SphereGeometry(0.2); // Sphere to represent points
-  var sphereMaterial = new THREE.MeshPhongMaterial({color:"rgb(255,255,0)"});
+    //----------------------------------
+    // Create Convex Geometry
+    //----------------------------------
+    var sphereGeom = new THREE.SphereGeometry(0.2); // Sphere to represent points
+    var sphereMaterial = new THREE.MeshPhongMaterial({
+        color: "rgb(255,255,0)",
+    });
 
-  // Global variables to be removed from memory each interaction
-  var pointCloud = null;
-  var spGroup = null;
-  var convexGeometry = null;
-  var object = null;
-  var pointCloudVisibility = true;
-  var objectVisibility = true;
-  var castShadow = true;
+    // Global variables to be removed from memory each interaction
+    var pointCloud = null;
+    var spGroup = null;
+    var convexGeometry = null;
+    var object = null;
+    var pointCloudVisibility = true;
+    var objectVisibility = true;
+    var castShadow = true;
 
     // Create convex object the first time
     criaMontanhaUm();
     // criacao dos postes dew luz
 
-    var posteUm = createPoste(new THREE.Vector3(20,30,10.5));
+    var posteUm = createPoste(new THREE.Vector3(20, 30, 10.5));
     scene.add(posteUm);
 
-    var posteDois = createPoste(new THREE.Vector3(-20,15,10.5));
+    var posteDois = createPoste(new THREE.Vector3(-20, 15, 10.5));
     scene.add(posteDois);
 
-    var posteTres = createPoste(new THREE.Vector3(-20,5,10.5));
+    var posteTres = createPoste(new THREE.Vector3(-20, 5, 10.5));
     scene.add(posteTres);
 
-   var posteQuatro = createPoste(new THREE.Vector3(20,-70,10.5));
+    var posteQuatro = createPoste(new THREE.Vector3(20, -70, 10.5));
     scene.add(posteQuatro);
 
-    var posteCinco = createPoste(new THREE.Vector3(-20,25,10.5));
+    var posteCinco = createPoste(new THREE.Vector3(-20, 25, 10.5));
     scene.add(posteCinco);
 
-    var posteSeis = createPoste(new THREE.Vector3(20,75,10.5));
+    var posteSeis = createPoste(new THREE.Vector3(20, 75, 10.5));
     scene.add(posteSeis);
 
-    var posteSete = createPoste(new THREE.Vector3(20,-180,10.5));
+    var posteSete = createPoste(new THREE.Vector3(20, -180, 10.5));
     scene.add(posteSete);
 
-    var posteOito = createPoste(new THREE.Vector3(-20,-30,10.5));
+    var posteOito = createPoste(new THREE.Vector3(-20, -30, 10.5));
     scene.add(posteOito);
 
- function generatePoints(value)
-  {
-    var points = [];
+    function generatePoints(value) {
+        var points = [];
 
+        //base
+        points.push(new THREE.Vector3(value + 5, value + 35, 0));
+        points.push(new THREE.Vector3(value + 2, -value - 35, 0));
+        points.push(new THREE.Vector3(-value - 25, -value - 55, 0));
+        points.push(new THREE.Vector3(value + 50, value + 15, 0));
+        points.push(new THREE.Vector3(value + 45, value + 5, 0));
+        points.push(new THREE.Vector3(-value - 60, value + 5, 0));
+        points.push(new THREE.Vector3(+value + 60, value + 5, 0));
+        points.push(new THREE.Vector3(value + 2, -value - 70, 0));
+        points.push(new THREE.Vector3(value + 45, -value - 25, 0));
+        points.push(new THREE.Vector3(-value - 55, -value - 25, 0));
 
-      //base    
-      points.push(new THREE.Vector3(value + 5,value + 35, 0));
-      points.push(new THREE.Vector3(value +2, -value - 35, 0));
-      points.push(new THREE.Vector3(-value -25, -value -55, 0));
-      points.push(new THREE.Vector3(value + 50, value + 15, 0));
-      points.push(new THREE.Vector3(value + 45, value + 5, 0));
-      points.push(new THREE.Vector3(-value  -60, value + 5, 0));
-      points.push(new THREE.Vector3(+value  +60, value + 5, 0));
-      points.push(new THREE.Vector3(value +2, -value - 70, 0));
-      points.push(new THREE.Vector3(value + 45, -value  -25, 0));
-      points.push(new THREE.Vector3(-value -55, -value  -25, 0));
-
-      //partes mais altas
-      points.push(new THREE.Vector3(value +35, 5, 19));
-      points.push(new THREE.Vector3(-5, -5, value +35));
-      points.push(new THREE.Vector3(-value -40, 10, 30));
-      points.push(new THREE.Vector3(-value -40, 10, 30));
-     points.push(new THREE.Vector3(5, -value -19, 25));
-     points.push(new THREE.Vector3(-value -20,-value -25, 28));
-     points.push(new THREE.Vector3(value + 20, -value -20, 28));
-     points.push(new THREE.Vector3(-value -10, -15, 19));
-     points.push(new THREE.Vector3(-value -5,-value -25, 32));
-     points.push(new THREE.Vector3(value + 5,-value -25, 32));
-     points.push(new THREE.Vector3(0 , -value -25 , 35));
-      points.push(new THREE.Vector3(0, +value +25, 35));
-/*
+        //partes mais altas
+        points.push(new THREE.Vector3(value + 35, 5, 19));
+        points.push(new THREE.Vector3(-5, -5, value + 35));
+        points.push(new THREE.Vector3(-value - 40, 10, 30));
+        points.push(new THREE.Vector3(-value - 40, 10, 30));
+        points.push(new THREE.Vector3(5, -value - 19, 25));
+        points.push(new THREE.Vector3(-value - 20, -value - 25, 28));
+        points.push(new THREE.Vector3(value + 20, -value - 20, 28));
+        points.push(new THREE.Vector3(-value - 10, -15, 19));
+        points.push(new THREE.Vector3(-value - 5, -value - 25, 32));
+        points.push(new THREE.Vector3(value + 5, -value - 25, 32));
+        points.push(new THREE.Vector3(0, -value - 25, 35));
+        points.push(new THREE.Vector3(0, +value + 25, 35));
+        /*
     spGroup = new THREE.Geometry();
     spMesh = new THREE.Mesh(sphereGeom);
     points.forEach(function (point) {
@@ -482,52 +486,46 @@ function main() {
       pointCloud.position.set(0,200,0);
     scene.add(pointCloud);
 */
-    return points; 
-  }
+        return points;
+    }
 
-  function criaMontanhaUm( )
-  {
+    function criaMontanhaUm() {
+        // First, create the point vector to be used by the convex hull algorithm
+        var localPointsUm = generatePoints(40);
+        var localPointsDois = generatePoints(15);
+        var localPointsTres = generatePoints(20);
+        var localPointsCinco = generatePoints(5);
+        var localPointsSeis = generatePoints(10);
+        // Then, build the convex geometry with the generated points
+        convexGeometry = new THREE.ConvexBufferGeometry(localPointsUm);
+        convexGeometry2 = new THREE.ConvexBufferGeometry(localPointsDois);
+        convexGeometry3 = new THREE.ConvexBufferGeometry(localPointsTres);
+        convexGeometry4 = new THREE.ConvexBufferGeometry(localPointsCinco);
+        convexGeometry5 = new THREE.ConvexBufferGeometry(localPointsSeis);
 
-    // First, create the point vector to be used by the convex hull algorithm
-    var localPointsUm = generatePoints(40);
-    var localPointsDois = generatePoints(15);
-    var localPointsTres = generatePoints(20);
-    var localPointsCinco = generatePoints(5);
-    var localPointsSeis = generatePoints(10);
-    // Then, build the convex geometry with the generated points
-    convexGeometry = new THREE.ConvexBufferGeometry(localPointsUm);
-    convexGeometry2 = new THREE.ConvexBufferGeometry(localPointsDois);
-    convexGeometry3 = new THREE.ConvexBufferGeometry(localPointsTres);   
-    convexGeometry4 = new THREE.ConvexBufferGeometry(localPointsCinco);
-    convexGeometry5 = new THREE.ConvexBufferGeometry(localPointsSeis);
+        var montanhaMaiorUm = new THREE.Mesh(convexGeometry, objectMaterial);
+        montanhaMaiorUm.visible = true;
+        montanhaMaiorUm.position.set(-80, 200, 0);
+        scene.add(montanhaMaiorUm);
+        var montanhaMaiorDois = new THREE.Mesh(convexGeometry2, objectMaterial);
+        montanhaMaiorDois.visible = true;
+        montanhaMaiorDois.position.set(-20, 200, 0);
+        scene.add(montanhaMaiorDois);
+        var montanhaMaiorTres = new THREE.Mesh(convexGeometry3, objectMaterial);
+        montanhaMaiorTres.visible = true;
+        montanhaMaiorTres.position.set(-155, 200, 0);
+        scene.add(montanhaMaiorTres);
 
-    var montanhaMaiorUm = new THREE.Mesh(convexGeometry, objectMaterial);
-    montanhaMaiorUm.visible = true;
-    montanhaMaiorUm.position.set(-80,200,0);
-    scene.add(montanhaMaiorUm); 
-    var montanhaMaiorDois = new THREE.Mesh(convexGeometry2, objectMaterial);
-    montanhaMaiorDois.visible = true;
-    montanhaMaiorDois.position.set(-20,200,0);
-    scene.add(montanhaMaiorDois)
-    var montanhaMaiorTres = new THREE.Mesh(convexGeometry3, objectMaterial);
-    montanhaMaiorTres.visible = true;
-    montanhaMaiorTres.position.set(-155,200,0);
-    scene.add(montanhaMaiorTres)
-
-    var montanhaMenorUm = new THREE.Mesh(convexGeometry5, objectMaterial);
-    montanhaMenorUm.visible = true;
-    montanhaMenorUm.position.set(200,200,0);
-    scene.add(montanhaMenorUm); 
-    var montanhaMenorDois = new THREE.Mesh(convexGeometry4, objectMaterial);
-    montanhaMenorDois.visible = true;
-    montanhaMenorDois.position.set(250,220,0);
-    scene.add(montanhaMenorDois)
-
-
-  }
-  ///////////////// FIM MOnTANHA
-
-    
+        var montanhaMenorUm = new THREE.Mesh(convexGeometry5, objectMaterial);
+        montanhaMenorUm.visible = true;
+        montanhaMenorUm.position.set(200, 200, 0);
+        scene.add(montanhaMenorUm);
+        var montanhaMenorDois = new THREE.Mesh(convexGeometry4, objectMaterial);
+        montanhaMenorDois.visible = true;
+        montanhaMenorDois.position.set(250, 220, 0);
+        scene.add(montanhaMenorDois);
+    }
+    ///////////////// FIM MOnTANHA
 
     // Inicio funcao auxiliar para ajudar a posicionar as formas
     function moveObject(object) {
@@ -548,13 +546,25 @@ function main() {
 
     // movimentacao das rodas
     function moveKart() {
-        kartBody.main.eixoFrontal.leftWheel.rotation.set(
-            kartBody.main.eixoFrontal.leftWheel.rotation.x,
+        let delta = clock.getDelta();
+        let speedPositive = kartProps.currentSpeed >= 0;
+
+        let moveDistance = kartProps.currentSpeed * delta;
+        kart.translateX(moveDistance);
+
+        //   cameraRotation -= degreesToRadians(
+        //     kartProps.rotateAngle * speedPositive ? 1 : -1
+        //   );
+
+        kart.rotateOnAxis(new THREE.Vector3(0, 0, 1), kartRotation);
+        kartBody.eixoFrontal.leftWheel.rotation.set(
+            kartBody.eixoFrontal.leftWheel.rotation.x,
             degreesToRadians(wheelsRotation),
             0
         );
-        kartBody.main.eixoFrontal.rightWheel.rotation.set(
-            kartBody.main.eixoFrontal.rightWheel.rotation.x,
+
+        kartBody.eixoFrontal.rightWheel.rotation.set(
+            kartBody.eixoFrontal.rightWheel.rotation.x,
             degreesToRadians(wheelsRotation),
             0
         );
@@ -596,7 +606,7 @@ function main() {
                 }
                 resetKart();
                 cameraRotation = 0;
-                changeCamera(kart.position, kart.position, vectUp);
+                moveCamera(kart.position, kart.position, vectUp);
                 console.log("Apertou no botão");
             },
         };
@@ -661,98 +671,81 @@ function main() {
         resetKart();
         cameraRotation = 0;
         camera.position.z = 15;
-        changeCamera(kart.position, kart.position, vectUp);
+        moveCamera(kart.position, kart.position, vectUp);
     }
 
-    //funcao responsavel pelos comandos com teclado
+    // Funcao responsavel pelos comandos com teclado
     function keyboardUpdate() {
         keyboard.update();
-        var delta = clock.getDelta();
 
         let speedPositive = kartProps.currentSpeed >= 0;
+        kartRotation = 0;
+        let direction = 0;
 
         if (keyboard.down("space")) {
             changeMode();
         }
 
-        // Movimentação do kart
+        // Atualiza valores de rotação de rodas e define a direção
+        if (keyboard.pressed("left")) {
+            direction = -1;
+            if (wheelsRotation < wheelsMaxRotation) {
+                wheelsRotation += kartProps.wheelsSpeedRotation;
+            }
+        } else if (keyboard.pressed("right")) {
+            direction = 1;
+            if (wheelsRotation > -wheelsMaxRotation) {
+                wheelsRotation -= kartProps.wheelsSpeedRotation;
+            }
+        } else {
+            if (wheelsRotation != 0) {
+                let factor = wheelsRotation > 0 ? -2 : 5;
+                wheelsRotation += kartProps.rotateAngle * factor;
+            }
+        }
+
+        let speedFactor = 1;
+        // Velocidade e rotacao do Kart no modo jogo
         if (gameMode) {
             if (
                 keyboard.pressed("up") &&
                 kartProps.currentSpeed < kartProps.maxSpeed
             ) {
-                kartProps.currentSpeed += kartProps.acceleration;
+                if (kartProps.currentSpeed < 0) speedFactor = 4;
+                kartProps.currentSpeed += kartProps.acceleration * speedFactor;
             } else if (
                 keyboard.pressed("down") &&
                 kartProps.currentSpeed > -kartProps.maxSpeed
             ) {
-                kartProps.currentSpeed -=
-                    kartProps.acceleration *
-                    kartProps.brakeAccelerationFactor *
-                    1.2;
+                if (kartProps.currentSpeed > 0) speedFactor = 4;
+                kartProps.currentSpeed -= kartProps.acceleration * speedFactor;
+                // kartProps.currentSpeed -=
+                //     kartProps.acceleration *
+                //     kartProps.brakeAccelerationFactor *
+                //     2;
             } else if (kartProps.currentSpeed != 0) {
+                console.log(kartProps.currentSpeed);
                 if (kartProps.currentSpeed > -1 && kartProps.currentSpeed < 1) {
                     kartProps.currentSpeed = 0;
                 } else {
                     kartProps.currentSpeed +=
-                        kartProps.acceleration * speedPositive
-                            ? -kartProps.brakeAccelerationFactor
-                            : kartProps.brakeAccelerationFactor;
+                        kartProps.acceleration * speedPositive ? -1 : 1
+                            // ? -kartProps.brakeAccelerationFactor
+                            // : kartProps.brakeAccelerationFactor;
                 }
             }
-            var moveDistance = kartProps.currentSpeed * delta;
-            kart.translateX(moveDistance);
 
-            if (keyboard.pressed("left")) {
-                if (kartProps.currentSpeed != 0) {
-                    cameraRotation -= degreesToRadians(
+            if (kartProps.currentSpeed != 0) {
+                cameraRotation +=
+                    degreesToRadians(
                         kartProps.rotateAngle * speedPositive ? 1 : -1
-                    );
-                    kart.rotateOnAxis(
-                        new THREE.Vector3(0, 0, 1),
-                        degreesToRadians(
-                            kartProps.rotateAngle * speedPositive ? 1 : -1
-                        )
-                    );
-                }
-                if (wheelsRotation < wheelsMaxRotation) {
-                    wheelsRotation += kartProps.wheelsSpeedRotation;
-                }
-            } else if (keyboard.pressed("right")) {
-                if (kartProps.currentSpeed != 0) {
-                    cameraRotation += degreesToRadians(
+                    ) * direction;
+                kartRotation =
+                    degreesToRadians(
                         kartProps.rotateAngle * speedPositive ? 1 : -1
-                    );
-                    kart.rotateOnAxis(
-                        new THREE.Vector3(0, 0, 1),
-                        -degreesToRadians(
-                            kartProps.rotateAngle * speedPositive ? 1 : -1
-                        )
-                    );
-                }
-                if (wheelsRotation > -wheelsMaxRotation) {
-                    wheelsRotation -= kartProps.wheelsSpeedRotation;
-                }
-            } else {
-                if (wheelsRotation != 0) {
-                    let factor = wheelsRotation > 0 ? -1 : 1;
-                    wheelsRotation += kartProps.rotateAngle * factor * 2;
-                }
-            }
-        } else  {
-            if (keyboard.pressed("left")) {
-                if (wheelsRotation < wheelsMaxRotation) {
-                    wheelsRotation += kartProps.wheelsSpeedRotation;
-                }
-            } else if (keyboard.pressed("right")) {
-                if (wheelsRotation > -wheelsMaxRotation) {
-                    wheelsRotation -= kartProps.wheelsSpeedRotation;
-                }
-            } else {
-                if (wheelsRotation != 0) {
-                    let factor = wheelsRotation > 0 ? -1 : 1;
-                    wheelsRotation += kartProps.rotateAngle * factor * 2;
-                }
+                    ) *
+                    direction *
+                    -1;
             }
         }
         // Reset Kart
@@ -760,16 +753,14 @@ function main() {
     }
 
     // funcao utilizada para manter a posicao da camera
-    function changeCamera(position, look, up) {
+    function moveCamera(position, look, up) {
         var rotY = Math.cos(cameraRotation);
         var rotX = Math.sin(cameraRotation);
         var distance = 50;
         camera.position.x = position.x - distance * rotX;
         camera.position.y = position.y - distance * rotY;
 
-        // camera.position.set(position.x, position.y - 30, cameraPosition.z);
         camera.lookAt(look);
         camera.up.set(up.x, up.y, up.z);
-        // return camera;
     }
 }
