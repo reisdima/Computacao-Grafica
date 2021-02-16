@@ -110,9 +110,9 @@ function main() {
     );
     //---------------------------------------------------------
     // Load external objects
-
-       loadOBJFile('assets/', 'Format_obj', true, 20);
        var estatua = null;
+       loadOBJFile('assets/', 'Format_obj', true, 20);
+       
 
     function loadOBJFile(modelPath, modelName, visibility, desiredScale) {
         currentModel = modelName;
