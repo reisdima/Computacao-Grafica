@@ -55,7 +55,7 @@ function main() {
     var objectRotacaoFinal = {};
 
     var kartProps = {
-        initialPosition: new THREE.Vector3(0, 0, 1.75),
+        initialPosition: new THREE.Vector3(-5, -245, 1.75),
         currentPosition: new THREE.Vector3(0, 0, 1.75),
         angleRotationZ: 90,
         currentSpeed: 0,
@@ -84,6 +84,8 @@ function main() {
     scene.add(kart);
     buildInterface(object);
 
+    var information = showInformation();
+
     // Use this to show information onscreen
 
     controls = new InfoBox();
@@ -106,82 +108,82 @@ function main() {
         },
         false
     );
-     //---------------------------------------------------------
-  // Load external objects
+    //---------------------------------------------------------
+    // Load external objects
 
-  loadOBJFile('assets/', 'Format_obj', true, 20);
- 
-  function loadOBJFile(modelPath, modelName, visibility, desiredScale)
-  {
-    currentModel = modelName;
+    //   loadOBJFile('assets/', 'Format_obj', true, 20);
 
-    var manager = new THREE.LoadingManager( );
+    function loadOBJFile(modelPath, modelName, visibility, desiredScale) {
+        currentModel = modelName;
 
-    var mtlLoader = new THREE.MTLLoader( manager );
-    mtlLoader.setPath( modelPath );
-    mtlLoader.load( modelName + '.mtl', function ( materials ) {
-         materials.preload();
+        var manager = new THREE.LoadingManager();
 
-         var objLoader = new THREE.OBJLoader( manager );
-         objLoader.setMaterials(materials);
-         objLoader.setPath(modelPath);
-         objLoader.load( modelName + ".obj", function ( obj ) {
-           obj.name = modelName;
-           obj.visible = visibility;
-           // Set 'castShadow' property for each children of the group
-           obj.traverse( function (child)
-           {
-             child.castShadow = true;
-           });
+        var mtlLoader = new THREE.MTLLoader(manager);
+        mtlLoader.setPath(modelPath);
+        mtlLoader.load(modelName + ".mtl", function (materials) {
+            materials.preload();
 
-           obj.traverse( function( node )
-           {
-             if( node.material ) node.material.side = THREE.DoubleSide;
-           });
+            var objLoader = new THREE.OBJLoader(manager);
+            objLoader.setMaterials(materials);
+            objLoader.setPath(modelPath);
+            objLoader.load(
+                modelName + ".obj",
+                function (obj) {
+                    obj.name = modelName;
+                    obj.visible = visibility;
+                    // Set 'castShadow' property for each children of the group
+                    obj.traverse(function (child) {
+                        child.castShadow = true;
+                    });
 
-           var obj = normalizeAndRescale(obj, desiredScale);
-           var obj = fixPosition(obj);
+                    obj.traverse(function (node) {
+                        if (node.material)
+                            node.material.side = THREE.DoubleSide;
+                    });
 
-           obj.rotation.set(degreesToRadians(90),degreesToRadians(-90),0);
-           obj.position.set(-315,320,0);
-           scene.add ( obj );
+                    var obj = normalizeAndRescale(obj, desiredScale);
+                    var obj = fixPosition(obj);
 
-         
+                    obj.rotation.set(
+                        degreesToRadians(90),
+                        degreesToRadians(-90),
+                        0
+                    );
+                    obj.position.set(-315, 320, 0);
+                    scene.add(obj);
+                },
+                onProgress,
+                onError
+            );
+        });
+    }
 
-         }, onProgress, onError );
-    });
-  }
+    function onError() {}
 
-  function onError() { };
+    function onProgress(xhr, model) {
+        if (xhr.lengthComputable) {
+            var percentComplete = (xhr.loaded / xhr.total) * 100;
+            //infoBox.changeMessage("Loading... " + Math.round( percentComplete, 2 ) + '% processed' );
+        }
+    }
 
-  function onProgress ( xhr, model ) {
-     if ( xhr.lengthComputable ) {
-       var percentComplete = xhr.loaded / xhr.total * 100;
-       //infoBox.changeMessage("Loading... " + Math.round( percentComplete, 2 ) + '% processed' );
-     }
-  }
+    function fixPosition(obj) {
+        // Fix position of the object over the ground plane
+        var box = new THREE.Box3().setFromObject(obj);
+        if (box.min.y > 0) obj.translateY(-box.min.y);
+        else obj.translateY(-1 * box.min.y);
+        return obj;
+    }
 
-  function fixPosition(obj)
-  {
-   // Fix position of the object over the ground plane
-    var box = new THREE.Box3().setFromObject( obj );
-    if(box.min.y > 0)
-      obj.translateY(-box.min.y);
-    else
-      obj.translateY(-1*box.min.y);
-    return obj;
-  }
-
-  function normalizeAndRescale(obj, newScale)
-  {
-    var scale = getMaxSize(obj); // Available in 'utils.js'
-    obj.scale.set(newScale * (1.0/scale),
-                  newScale * (1.0/scale),
-                  newScale * (1.0/scale));
-    return obj;
-  }
-
- 
+    function normalizeAndRescale(obj, newScale) {
+        var scale = getMaxSize(obj); // Available in 'utils.js'
+        obj.scale.set(
+            newScale * (1.0 / scale),
+            newScale * (1.0 / scale),
+            newScale * (1.0 / scale)
+        );
+        return obj;
+    }
 
     render();
     function render() {
@@ -193,7 +195,15 @@ function main() {
         }
         moveObject(object);
         moveKart();
-        lightFollowingCamera(light, camera);
+        // lightFollowingCamera(light, camera);
+        information.changeMessage(
+            "Pos: " +
+                kartProps.currentPosition.x.toFixed(1) +
+                " " +
+                kartProps.currentPosition.y.toFixed(1) +
+                " " +
+                kartProps.currentPosition.z.toFixed(1)
+        );
         requestAnimationFrame(render);
         renderer.render(scene, camera); // Render scene
     }
@@ -259,21 +269,38 @@ function main() {
         poste.rotation.set(degreesToRadians(90), 0, 0);
         poste.position.copy(position);
 
-        let lightPosition = new THREE.Vector3(0, 0, 0);
+        let lightPosition = new THREE.Vector3();
         lightPosition.copy(position);
-        lightPosition.z += 10
-        let lightSphere = createLightSphere(scene, 0.5, 10, 10, lightPosition)//.translateZ(10);
+        lightPosition.z += 12;
+        let lightSphere = createSphere(5, "yellow"); //.translateZ(10);
+        poste.sphere = lightSphere;
+        poste.sphere.translateY(12);
         let lightColor = "rgb(255,255,255)";
         let pointLight = new THREE.PointLight(lightColor);
-        pointLight.position.copy(lightPosition);
-        pointLight.name = "Point Light";
+        pointLight.position.copy(position);
+        // pointLight.name = "Point Light";
         pointLight.castShadow = true;
-        pointLight.intensity = 0.1;
+        pointLight.intensity = 100.0;
         pointLight.visible = true;
-        poste.add(pointLight);
 
         return poste;
     }
+
+    // Gerador do elemento esfera
+    function createSphere(radius, color) {
+        const sphereGeometry = new THREE.SphereGeometry(radius, 32, 32);
+        const sphereMaterial = new THREE.MeshPhongMaterial({ color: color });
+        const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+        return sphere;
+    }
+    function setPointLight(light, position) {
+        light.position.copy(position);
+        light.name = "Point Light";
+        light.castShadow = true;
+        light.visible = true;
+      
+        return light;
+      }
 
     // fim funcoes para criar as formas basicas
 
@@ -346,7 +373,7 @@ function main() {
         var backWheels = createRoda();
         backWheels.cylinder.position.set(-0.01, -0.01, 0.0);
 
-        mainCube.rotation.set(0, 0, degreesToRadians(90));
+        // mainCube.rotation.set(0, 0, degreesToRadians(90));
 
         frontCube.add(frontWheels.cylinder);
         backCube.add(backWheels.cylinder);
@@ -508,14 +535,14 @@ function main() {
 
     // criacao dos postes de luz
     var postes = [];
-    postes.push(createPoste(new THREE.Vector3(20, 30, 10.5)));
-    postes.push(createPoste(new THREE.Vector3(-20, 15, 10.5)));
-    postes.push(createPoste(new THREE.Vector3(-20, 5, 10.5)));
-    postes.push(createPoste(new THREE.Vector3(20, -70, 10.5)));
-    postes.push(createPoste(new THREE.Vector3(-20, 25, 10.5)));
-    postes.push(createPoste(new THREE.Vector3(20, 75, 10.5)));
-    postes.push(createPoste(new THREE.Vector3(20, -180, 10.5)));
-    postes.push(createPoste(new THREE.Vector3(-20, -30, 10.5)));
+    postes.push(createPoste(new THREE.Vector3(20, -260, 10.5)));
+    // postes.push(createPoste(new THREE.Vector3(-20, -260, 10.5)));
+    // postes.push(createPoste(new THREE.Vector3(-10, -260, 10.5)));
+    // postes.push(createPoste(new THREE.Vector3(-40, -260, 10.5)));
+    // postes.push(createPoste(new THREE.Vector3(40, -260, 10.5)));
+    // postes.push(createPoste(new THREE.Vector3(60, -260, 10.5)));
+    // postes.push(createPoste(new THREE.Vector3(80, -260, 10.5)));
+    // postes.push(createPoste(new THREE.Vector3(-60, -260, 10.5)));
 
     postes.forEach((poste) => {
         scene.add(poste);
@@ -802,18 +829,12 @@ function main() {
             ) {
                 if (kartProps.currentSpeed > 0) speedFactor = 4;
                 kartProps.currentSpeed -= kartProps.acceleration * speedFactor;
-                // kartProps.currentSpeed -=
-                //     kartProps.acceleration *
-                //     kartProps.brakeAccelerationFactor *
-                //     2;
             } else if (kartProps.currentSpeed != 0) {
                 if (kartProps.currentSpeed > -1 && kartProps.currentSpeed < 1) {
                     kartProps.currentSpeed = 0;
                 } else {
                     kartProps.currentSpeed +=
                         kartProps.acceleration * speedPositive ? -1 : 1;
-                    // ? -kartProps.brakeAccelerationFactor
-                    // : kartProps.brakeAccelerationFactor;
                 }
             }
 
@@ -821,7 +842,9 @@ function main() {
                 cameraRotation +=
                     degreesToRadians(
                         kartProps.rotateAngle * speedPositive ? 1 : -1
-                    ) * direction;
+                    ) *
+                    direction *
+                    -1;
                 kartRotation =
                     degreesToRadians(
                         kartProps.rotateAngle * speedPositive ? 1 : -1
@@ -836,13 +859,37 @@ function main() {
 
     // funcao utilizada para manter a posicao da camera
     function moveCamera(position, look, up) {
-        var rotY = Math.cos(cameraRotation);
-        var rotX = Math.sin(cameraRotation);
+        var rotY = Math.sin(cameraRotation);
+        var rotX = Math.cos(cameraRotation);
         var distance = 50;
         camera.position.x = position.x - distance * rotX;
         camera.position.y = position.y - distance * rotY;
 
         camera.lookAt(look);
         camera.up.set(up.x, up.y, up.z);
+    }
+    function showInformation() {
+        var secundaryBox = new SecondaryBox("...");
+        secundaryBox.changeMessage(
+            "Pos: " +
+                kartProps.currentPosition.x.toFixed(1) +
+                " " +
+                kartProps.currentPosition.y.toFixed(1) +
+                " " +
+                kartProps.currentPosition.z.toFixed(1)
+            // "  Look: " +
+            // cameraDirection.x.toFixed(1) +
+            // " " +
+            // cameraDirection.y.toFixed(1) +
+            // " " +
+            // cameraDirection.z.toFixed(1) +
+            // "  Up: " +
+            // vectUp.x.toFixed(1) +
+            // " " +
+            // vectUp.y.toFixed(1) +
+            // " " +
+            // vectUp.z.toFixed(1)
+        );
+        return secundaryBox;
     }
 }
