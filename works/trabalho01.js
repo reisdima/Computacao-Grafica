@@ -3,6 +3,7 @@ function main() {
     var scene = new THREE.Scene(); // Cria cena principal
     var renderer = initRenderer();
     var light = initDefaultLighting(scene, new THREE.Vector3());
+    var spotLight = createSpotLight();
     var clock = new THREE.Clock();
     var keyboard = new KeyboardState();
 
@@ -30,7 +31,8 @@ function main() {
 
     var planeGeometry = new THREE.PlaneGeometry(700, 700, 40, 40);
     planeGeometry.translate(0.0, 0.0, -0.02);
-    var planeMaterial = new THREE.MeshPhongMaterial({
+    // var planeMaterial = new THREE.MeshPhongMaterial({
+    var planeMaterial = new THREE.MeshLambertMaterial({
         color: "rgba(20, 30, 110)",
         side: THREE.DoubleSide,
         polygonOffset: true,
@@ -38,6 +40,8 @@ function main() {
         polygonOffsetUnits: 1,
     });
     var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+    // plane.castShadow = false;
+    plane.receiveShadow = true;
     scene.add(plane);
 
     var wireframe = new THREE.WireframeGeometry(planeGeometry);
@@ -57,6 +61,7 @@ function main() {
 
     var kartProps = {
         initialPosition: new THREE.Vector3(-5, -245, 1.75),
+        // initialPosition: new THREE.Vector3(0, 0, 1.75),
         // initialPosition: new THREE.Vector3(0, 0, 1.75),
         currentPosition: new THREE.Vector3(0, 0, 1.75),
         angleRotationZ: 90,
@@ -84,6 +89,62 @@ function main() {
     //   var object = kartBody.object;
     var kart = kartBody.corpo;
     scene.add(kart);
+    scene.add(spotLight);
+    spotLight.target = kart;
+
+    //--------------------------------- Criar Montanhas //---------------------------------//
+
+    //propiedades do objeto
+    var objColor = "rgb(100, 70, 20)";
+    var objOpacity = 1;
+
+    // Object Material
+    var objectMaterial = new THREE.MeshLambertMaterial({
+        color: objColor,
+        opacity: objOpacity,
+        transparent: true,
+    });
+
+    //----------------------------------
+    // Create Convex Geometry
+    //----------------------------------
+    var sphereGeom = new THREE.SphereGeometry(0.2); // Sphere to represent points
+    var sphereMaterial = new THREE.MeshPhongMaterial({
+        color: "rgb(255,255,0)",
+    });
+
+    // Global variables to be removed from memory each interaction
+    var pointCloud = null;
+    var spGroup = null;
+    var convexGeometry = null;
+    var pointCloudVisibility = true;
+    var objectVisibility = true;
+    var castShadow = true;
+
+    // Create convex object the first time
+    var montanhas = criaMontanhaUm();
+    montanhas.forEach((montanha) => {
+        scene.add(montanha);
+    });
+
+    // criacao dos postes de luz
+    // let poste = createPoste(new THREE.Vector3(20, -260, 10.5));
+    // object = poste;
+    var postes = [];
+    // postes.push(poste);
+    postes.push(createPoste(new THREE.Vector3(20, -260, 10.5)));
+    postes.push(createPoste(new THREE.Vector3(-20, -260, 10.5)));
+    postes.push(createPoste(new THREE.Vector3(-10, -260, 10.5)));
+    postes.push(createPoste(new THREE.Vector3(-40, -260, 10.5)));
+    postes.push(createPoste(new THREE.Vector3(40, -260, 10.5)));
+    postes.push(createPoste(new THREE.Vector3(60, -260, 10.5)));
+    postes.push(createPoste(new THREE.Vector3(80, -260, 10.5)));
+    postes.push(createPoste(new THREE.Vector3(-60, -260, 10.5)));
+
+    postes.forEach((obj) => {
+        scene.add(obj);
+    });
+
     buildInterface(object);
 
     var information = showInformation();
@@ -153,7 +214,7 @@ function main() {
                     );
                     obj.position.set(-315, 320, 0);
                     estatua = obj;
-                    scene.add(estatua);
+                    // scene.add(estatua);
                 },
                 onProgress,
                 onError
@@ -199,7 +260,7 @@ function main() {
         }
         moveObject(object);
         moveKart();
-        lightFollowingCamera(light, camera);
+        // lightFollowingCamera(light, camera);
         information.changeMessage(
             "Pos: " +
                 kartProps.currentPosition.x.toFixed(1) +
@@ -207,6 +268,13 @@ function main() {
                 kartProps.currentPosition.y.toFixed(1) +
                 " " +
                 kartProps.currentPosition.z.toFixed(1)
+            // +
+            // "   Object: " +
+            // object.position.x.toFixed(1) +
+            // " " +
+            // object.position.y.toFixed(1) +
+            // " " +
+            // object.position.z.toFixed(1)
         );
         requestAnimationFrame(render);
         renderer.render(scene, camera); // Render scene
@@ -218,29 +286,17 @@ function main() {
         const geometry = new THREE.BoxGeometry(width, height, depth);
         const material = new THREE.MeshPhongMaterial({ color: parent });
         const cube = new THREE.Mesh(geometry, material);
+        cube.castShadow = true;
         cube.position.set(0.0, 0.0, 0.0);
         return cube;
     }
 
-    function createCylinder(radiusTop, radiusBottom, height, radialSegments) {
-        const geometry = new THREE.CylinderGeometry(
-            radiusTop,
-            radiusBottom,
-            height,
-            radialSegments
-        );
-        const material = new THREE.MeshPhongMaterial({ color: "#ffffff" });
-        const cylinder = new THREE.Mesh(geometry, material);
-        cylinder.position.set(0.0, 0.0, 0.0);
-        return cylinder;
-    }
-
-    function createCylinderColor(
+    function createCylinder(
         radiusTop,
         radiusBottom,
         height,
         radialSegments,
-        color
+        color = "#ffffff"
     ) {
         const geometry = new THREE.CylinderGeometry(
             radiusTop,
@@ -250,6 +306,7 @@ function main() {
         );
         const material = new THREE.MeshPhongMaterial({ color: color });
         const cylinder = new THREE.Mesh(geometry, material);
+        cylinder.castShadow = true;
         cylinder.position.set(0.0, 0.0, 0.0);
         return cylinder;
     }
@@ -264,6 +321,7 @@ function main() {
         const material = new THREE.MeshPhongMaterial({ color: "#3e403e" });
         const torus = new THREE.Mesh(geometry, material);
         torus.position.set(0.0, 0.0, 0.0);
+        torus.castShadow = true;
         return torus;
     }
 
@@ -273,19 +331,17 @@ function main() {
         poste.rotation.set(degreesToRadians(90), 0, 0);
         poste.position.copy(position);
 
-        let lightPosition = new THREE.Vector3();
-        lightPosition.copy(position);
-        lightPosition.z += 12;
-        let lightSphere = createSphere(5, "yellow"); //.translateZ(10);
-        poste.sphere = lightSphere;
-        poste.sphere.translateY(12);
+        let lightSphere = createSphere(2, "yellow"); //.translateZ(10);
+        lightSphere.translateY(12);
+        poste.add(lightSphere);
+
         let lightColor = "rgb(255,255,255)";
         let pointLight = new THREE.PointLight(lightColor);
-        pointLight.position.copy(position);
-        // pointLight.name = "Point Light";
+        pointLight.translateY(12);
         pointLight.castShadow = true;
-        pointLight.intensity = 100.0;
+        pointLight.intensity = 0.5;
         pointLight.visible = true;
+        poste.add(pointLight);
 
         return poste;
     }
@@ -295,6 +351,7 @@ function main() {
         const sphereGeometry = new THREE.SphereGeometry(radius, 32, 32);
         const sphereMaterial = new THREE.MeshPhongMaterial({ color: color });
         const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+        sphere.castShadow = true;
         return sphere;
     }
     function setPointLight(light, position) {
@@ -428,12 +485,12 @@ function main() {
 
         //detalhes das laterais
 
-        var detLeft = createCylinderColor(0.5, 0.5, 1, 3, "#00ba03");
+        var detLeft = createCylinder(0.5, 0.5, 1, 3, "#00ba03");
         detLeft.position.set(0, 1.2, 0.04);
         detLeft.rotation.set(degreesToRadians(30), 0, degreesToRadians(90));
         mainCube.add(detLeft);
 
-        var detRight = createCylinderColor(0.5, 0.5, 1, 3, "#00ba03");
+        var detRight = createCylinder(0.5, 0.5, 1, 3, "#00ba03");
         detRight.position.set(0, -1.2, -0.04);
         detRight.rotation.set(degreesToRadians(-30), 0, degreesToRadians(90));
         mainCube.add(detRight);
@@ -503,57 +560,6 @@ function main() {
     }
 
     // fim funcao para criar kart e suas partes
-
-    //--------------------------------- Criar Montanhas //---------------------------------//
-
-    //propiedades do objeto
-    var objColor = "rgb(100, 70, 20)";
-    var objOpacity = 1;
-
-    // Object Material
-    var objectMaterial = new THREE.MeshLambertMaterial({
-        color: objColor,
-        opacity: objOpacity,
-        transparent: true,
-    });
-
-    //----------------------------------
-    // Create Convex Geometry
-    //----------------------------------
-    var sphereGeom = new THREE.SphereGeometry(0.2); // Sphere to represent points
-    var sphereMaterial = new THREE.MeshPhongMaterial({
-        color: "rgb(255,255,0)",
-    });
-
-    // Global variables to be removed from memory each interaction
-    var pointCloud = null;
-    var spGroup = null;
-    var convexGeometry = null;
-    var object = null;
-    var pointCloudVisibility = true;
-    var objectVisibility = true;
-    var castShadow = true;
-
-    // Create convex object the first time
-    var montanhas = criaMontanhaUm();
-    montanhas.forEach((montanha) => {
-        scene.add(montanha);
-    });
-
-    // criacao dos postes de luz
-    var postes = [];
-    postes.push(createPoste(new THREE.Vector3(20, -260, 10.5)));
-    // postes.push(createPoste(new THREE.Vector3(-20, -260, 10.5)));
-    // postes.push(createPoste(new THREE.Vector3(-10, -260, 10.5)));
-    // postes.push(createPoste(new THREE.Vector3(-40, -260, 10.5)));
-    // postes.push(createPoste(new THREE.Vector3(40, -260, 10.5)));
-    // postes.push(createPoste(new THREE.Vector3(60, -260, 10.5)));
-    // postes.push(createPoste(new THREE.Vector3(80, -260, 10.5)));
-    // postes.push(createPoste(new THREE.Vector3(-60, -260, 10.5)));
-
-    postes.forEach((poste) => {
-        scene.add(poste);
-    });
 
     function generatePoints(value) {
         var points = [];
@@ -724,14 +730,13 @@ function main() {
                 resetKart();
                 cameraRotation = 0;
                 moveCamera(kart.position, kart.position, vectUp);
-                console.log("Apertou no botão");
             },
         };
 
         // GUI interface
         var gui = new dat.GUI();
         // Movimento
-        gui.add(controls, "x", -7.0, 5.0)
+        gui.add(controls, "x", -7.0, 20.0)
             .onChange(function (e) {
                 controls.move();
             })
@@ -775,12 +780,12 @@ function main() {
     function changeMode() {
         if (gameMode) {
             kart.position.copy(center);
-            scene.remove(plane);
-            scene.remove(line);
-            scene.remove(axesHelper);
-            postes.forEach((poste) => {
-                scene.remove(poste);
-            });
+            // scene.remove(plane);
+            // scene.remove(line);
+            // scene.remove(axesHelper);
+            // postes.forEach((poste) => {
+            //     scene.remove(poste);
+            // });
             montanhas.forEach((montanha) => {
                 scene.remove(montanha);
             });
@@ -890,21 +895,10 @@ function main() {
         var distance = 50;
         camera.position.x = position.x - distance * rotX;
         camera.position.y = position.y - distance * rotY;
-        if (origin) {
-            console.log("look");
-            console.log(look);
-            console.log("position");
-            console.log(position);
-            console.log("camera position");
-            console.log(camera.position);
-            console.log("kart props");
-            console.log(kartProps);
-            console.log("kart position");
-            console.log(kart.position);
-        }
 
         camera.lookAt(look);
         camera.up.set(up.x, up.y, up.z);
+        spotLight.position.copy(camera.position);
     }
     function showInformation() {
         var secundaryBox = new SecondaryBox("...");
@@ -929,5 +923,29 @@ function main() {
             // vectUp.z.toFixed(1)
         );
         return secundaryBox;
+    }
+
+    function createSpotLight() {4
+        const spotLight = new THREE.SpotLight("rgb(150,150,150)");
+        spotLight.shadow.mapSize.width = 2048;
+        spotLight.shadow.mapSize.height = 2048;
+        spotLight.shadow.camera.fov = degreesToRadians(20);
+        spotLight.castShadow = true;
+        spotLight.decay = 2;
+        spotLight.intensity = 1;
+        spotLight.penumbra = 0.05;
+        spotLight.visible = true;
+
+        spotLight.position.set(0, 0, 0);
+
+        // spotLight.castShadow = true;
+
+        // spotLight.shadow.mapSize.width = 1024;
+        // spotLight.shadow.mapSize.height = 1024;
+
+        // spotLight.shadow.camera.near = 500;
+        // spotLight.shadow.camera.far = 4000;
+        // spotLight.shadow.camera.fov = 30;
+        return spotLight;
     }
 }
