@@ -53,9 +53,11 @@ function main() {
         z: 2,
     };
     var objectRotacaoFinal = {};
+    var center = new THREE.Vector3(0, 0, 1.75);
 
     var kartProps = {
         initialPosition: new THREE.Vector3(-5, -245, 1.75),
+        // initialPosition: new THREE.Vector3(0, 0, 1.75),
         currentPosition: new THREE.Vector3(0, 0, 1.75),
         angleRotationZ: 90,
         currentSpeed: 0,
@@ -110,9 +112,8 @@ function main() {
     );
     //---------------------------------------------------------
     // Load external objects
-       var estatua = null;
-       loadOBJFile('assets/', 'Format_obj', true, 20);
-       
+    var estatua = null;
+    loadOBJFile("assets/", "Format_obj", true, 20);
 
     function loadOBJFile(modelPath, modelName, visibility, desiredScale) {
         currentModel = modelName;
@@ -190,14 +191,15 @@ function main() {
     render();
     function render() {
         stats.update(); // Update FPS
-        trackballControls.update(); // Enable mouse movements
         keyboardUpdate();
         if (gameMode) {
             moveCamera(kart.position, kart.position, vectUp);
+        } else {
+            trackballControls.update(); // Enable mouse movements
         }
         moveObject(object);
         moveKart();
-        // lightFollowingCamera(light, camera);
+        lightFollowingCamera(light, camera);
         information.changeMessage(
             "Pos: " +
                 kartProps.currentPosition.x.toFixed(1) +
@@ -300,9 +302,9 @@ function main() {
         light.name = "Point Light";
         light.castShadow = true;
         light.visible = true;
-      
+
         return light;
-      }
+    }
 
     // fim funcoes para criar as formas basicas
 
@@ -533,7 +535,7 @@ function main() {
     var castShadow = true;
 
     // Create convex object the first time
-    var montanhas =  criaMontanhaUm();
+    var montanhas = criaMontanhaUm();
     montanhas.forEach((montanha) => {
         scene.add(montanha);
     });
@@ -600,9 +602,6 @@ function main() {
     }
 
     function criaMontanhaUm() {
-
-        
-        
         // First, create the point vector to be used by the convex hull algorithm
         var localPointsUm = generatePoints(40);
         var localPointsDois = generatePoints(15);
@@ -616,7 +615,7 @@ function main() {
         convexGeometry4 = new THREE.ConvexBufferGeometry(localPointsCinco);
         convexGeometry5 = new THREE.ConvexBufferGeometry(localPointsSeis);
 
-        var montanhas =[];
+        var montanhas = [];
         var montanhaMaiorUm = new THREE.Mesh(convexGeometry, objectMaterial);
         montanhaMaiorUm.visible = true;
         montanhaMaiorUm.position.set(-80, 100, 0);
@@ -629,7 +628,6 @@ function main() {
         montanhaMaiorTres.visible = true;
         montanhaMaiorTres.position.set(-155, 100, 0);
 
-
         var montanhaMenorUm = new THREE.Mesh(convexGeometry5, objectMaterial);
         montanhaMenorUm.visible = true;
         montanhaMenorUm.position.set(200, 300, 0);
@@ -637,7 +635,7 @@ function main() {
         var montanhaMenorDois = new THREE.Mesh(convexGeometry4, objectMaterial);
         montanhaMenorDois.visible = true;
         montanhaMenorDois.position.set(250, 320, 0);
-  
+
         montanhas.push(montanhaMaiorUm);
         montanhas.push(montanhaMaiorDois);
         montanhas.push(montanhaMaiorTres);
@@ -768,15 +766,15 @@ function main() {
     }
 
     function resetKart() {
-        // kart.position.copy(kartProps.initialPosition);
-        // kart.rotation.set(0, 0, degreesToRadians(kartProps.angleRotationZ));
-        // kartProps.currentSpeed = 0;
+        kart.position.copy(kartProps.initialPosition);
+        kart.rotation.set(0, 0, degreesToRadians(kartProps.angleRotationZ));
+        kartProps.currentSpeed = 0;
     }
 
     //trocar modo de camera
     function changeMode() {
         if (gameMode) {
-            kart.position.copy(kartProps.initialPosition);
+            kart.position.copy(center);
             scene.remove(plane);
             scene.remove(line);
             scene.remove(axesHelper);
@@ -787,6 +785,8 @@ function main() {
                 scene.remove(montanha);
             });
             scene.remove(estatua);
+            trackballControls.reset();
+            trackballControls.enabled = true;
             gameMode = false;
         } else {
             kart.position.copy(kartProps.currentPosition);
@@ -800,11 +800,13 @@ function main() {
                 scene.add(montanha);
             });
             scene.add(estatua);
+            trackballControls.enabled = false;
             gameMode = true;
         }
         kartProps.currentSpeed = 0;
+        // trackballControls.reset();
         camera.position.z = 15;
-        moveCamera(kart.position, kart.position, vectUp);
+        moveCamera(kart.position, kart.position, vectUp, true);
     }
 
     // Funcao responsavel pelos comandos com teclado
@@ -882,12 +884,24 @@ function main() {
     }
 
     // funcao utilizada para manter a posicao da camera
-    function moveCamera(position, look, up) {
+    function moveCamera(position, look, up, origin = false) {
         var rotY = Math.sin(cameraRotation);
         var rotX = Math.cos(cameraRotation);
         var distance = 50;
         camera.position.x = position.x - distance * rotX;
         camera.position.y = position.y - distance * rotY;
+        if (origin) {
+            console.log("look");
+            console.log(look);
+            console.log("position");
+            console.log(position);
+            console.log("camera position");
+            console.log(camera.position);
+            console.log("kart props");
+            console.log(kartProps);
+            console.log("kart position");
+            console.log(kart.position);
+        }
 
         camera.lookAt(look);
         camera.up.set(up.x, up.y, up.z);
