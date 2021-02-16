@@ -106,6 +106,82 @@ function main() {
         },
         false
     );
+     //---------------------------------------------------------
+  // Load external objects
+
+  loadOBJFile('assets/', 'Format_obj', true, 20);
+ 
+  function loadOBJFile(modelPath, modelName, visibility, desiredScale)
+  {
+    currentModel = modelName;
+
+    var manager = new THREE.LoadingManager( );
+
+    var mtlLoader = new THREE.MTLLoader( manager );
+    mtlLoader.setPath( modelPath );
+    mtlLoader.load( modelName + '.mtl', function ( materials ) {
+         materials.preload();
+
+         var objLoader = new THREE.OBJLoader( manager );
+         objLoader.setMaterials(materials);
+         objLoader.setPath(modelPath);
+         objLoader.load( modelName + ".obj", function ( obj ) {
+           obj.name = modelName;
+           obj.visible = visibility;
+           // Set 'castShadow' property for each children of the group
+           obj.traverse( function (child)
+           {
+             child.castShadow = true;
+           });
+
+           obj.traverse( function( node )
+           {
+             if( node.material ) node.material.side = THREE.DoubleSide;
+           });
+
+           var obj = normalizeAndRescale(obj, desiredScale);
+           var obj = fixPosition(obj);
+
+           obj.rotation.set(degreesToRadians(90),degreesToRadians(-90),0);
+           obj.position.set(-315,320,0);
+           scene.add ( obj );
+
+         
+
+         }, onProgress, onError );
+    });
+  }
+
+  function onError() { };
+
+  function onProgress ( xhr, model ) {
+     if ( xhr.lengthComputable ) {
+       var percentComplete = xhr.loaded / xhr.total * 100;
+       //infoBox.changeMessage("Loading... " + Math.round( percentComplete, 2 ) + '% processed' );
+     }
+  }
+
+  function fixPosition(obj)
+  {
+   // Fix position of the object over the ground plane
+    var box = new THREE.Box3().setFromObject( obj );
+    if(box.min.y > 0)
+      obj.translateY(-box.min.y);
+    else
+      obj.translateY(-1*box.min.y);
+    return obj;
+  }
+
+  function normalizeAndRescale(obj, newScale)
+  {
+    var scale = getMaxSize(obj); // Available in 'utils.js'
+    obj.scale.set(newScale * (1.0/scale),
+                  newScale * (1.0/scale),
+                  newScale * (1.0/scale));
+    return obj;
+  }
+
+ 
 
     render();
     function render() {
@@ -117,7 +193,6 @@ function main() {
         }
         moveObject(object);
         moveKart();
-        //montanhaUm(80,30);
         lightFollowingCamera(light, camera);
         requestAnimationFrame(render);
         renderer.render(scene, camera); // Render scene
@@ -508,24 +583,24 @@ function main() {
 
         var montanhaMaiorUm = new THREE.Mesh(convexGeometry, objectMaterial);
         montanhaMaiorUm.visible = true;
-        montanhaMaiorUm.position.set(-80, 200, 0);
+        montanhaMaiorUm.position.set(-80, 100, 0);
         scene.add(montanhaMaiorUm);
         var montanhaMaiorDois = new THREE.Mesh(convexGeometry2, objectMaterial);
         montanhaMaiorDois.visible = true;
-        montanhaMaiorDois.position.set(-20, 200, 0);
+        montanhaMaiorDois.position.set(-20, 100, 0);
         scene.add(montanhaMaiorDois);
         var montanhaMaiorTres = new THREE.Mesh(convexGeometry3, objectMaterial);
         montanhaMaiorTres.visible = true;
-        montanhaMaiorTres.position.set(-155, 200, 0);
+        montanhaMaiorTres.position.set(-155, 100, 0);
         scene.add(montanhaMaiorTres);
 
         var montanhaMenorUm = new THREE.Mesh(convexGeometry5, objectMaterial);
         montanhaMenorUm.visible = true;
-        montanhaMenorUm.position.set(200, 200, 0);
+        montanhaMenorUm.position.set(200, 300, 0);
         scene.add(montanhaMenorUm);
         var montanhaMenorDois = new THREE.Mesh(convexGeometry4, objectMaterial);
         montanhaMenorDois.visible = true;
-        montanhaMenorDois.position.set(250, 220, 0);
+        montanhaMenorDois.position.set(250, 320, 0);
         scene.add(montanhaMenorDois);
     }
     ///////////////// FIM MOnTANHA
