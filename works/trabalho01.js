@@ -111,7 +111,8 @@ function main() {
     //---------------------------------------------------------
     // Load external objects
 
-    //   loadOBJFile('assets/', 'Format_obj', true, 20);
+       loadOBJFile('assets/', 'Format_obj', true, 20);
+       var estatua = null;
 
     function loadOBJFile(modelPath, modelName, visibility, desiredScale) {
         currentModel = modelName;
@@ -150,7 +151,8 @@ function main() {
                         0
                     );
                     obj.position.set(-315, 320, 0);
-                    scene.add(obj);
+                    estatua = obj;
+                    scene.add(estatua);
                 },
                 onProgress,
                 onError
@@ -531,7 +533,10 @@ function main() {
     var castShadow = true;
 
     // Create convex object the first time
-    criaMontanhaUm();
+    var montanhas =  criaMontanhaUm();
+    montanhas.forEach((montanha) => {
+        scene.add(montanha);
+    });
 
     // criacao dos postes de luz
     var postes = [];
@@ -595,6 +600,9 @@ function main() {
     }
 
     function criaMontanhaUm() {
+
+        
+        
         // First, create the point vector to be used by the convex hull algorithm
         var localPointsUm = generatePoints(40);
         var localPointsDois = generatePoints(15);
@@ -608,27 +616,35 @@ function main() {
         convexGeometry4 = new THREE.ConvexBufferGeometry(localPointsCinco);
         convexGeometry5 = new THREE.ConvexBufferGeometry(localPointsSeis);
 
+        var montanhas =[];
         var montanhaMaiorUm = new THREE.Mesh(convexGeometry, objectMaterial);
         montanhaMaiorUm.visible = true;
         montanhaMaiorUm.position.set(-80, 100, 0);
-        scene.add(montanhaMaiorUm);
+
         var montanhaMaiorDois = new THREE.Mesh(convexGeometry2, objectMaterial);
         montanhaMaiorDois.visible = true;
         montanhaMaiorDois.position.set(-20, 100, 0);
-        scene.add(montanhaMaiorDois);
+
         var montanhaMaiorTres = new THREE.Mesh(convexGeometry3, objectMaterial);
         montanhaMaiorTres.visible = true;
         montanhaMaiorTres.position.set(-155, 100, 0);
-        scene.add(montanhaMaiorTres);
+
 
         var montanhaMenorUm = new THREE.Mesh(convexGeometry5, objectMaterial);
         montanhaMenorUm.visible = true;
         montanhaMenorUm.position.set(200, 300, 0);
-        scene.add(montanhaMenorUm);
+
         var montanhaMenorDois = new THREE.Mesh(convexGeometry4, objectMaterial);
         montanhaMenorDois.visible = true;
         montanhaMenorDois.position.set(250, 320, 0);
-        scene.add(montanhaMenorDois);
+  
+        montanhas.push(montanhaMaiorUm);
+        montanhas.push(montanhaMaiorDois);
+        montanhas.push(montanhaMaiorTres);
+        montanhas.push(montanhaMenorUm);
+        montanhas.push(montanhaMenorDois);
+
+        return montanhas;
     }
     ///////////////// FIM MOnTANHA
 
@@ -767,6 +783,10 @@ function main() {
             postes.forEach((poste) => {
                 scene.remove(poste);
             });
+            montanhas.forEach((montanha) => {
+                scene.remove(montanha);
+            });
+            scene.remove(estatua);
             gameMode = false;
         } else {
             kart.position.copy(kartProps.currentPosition);
@@ -776,6 +796,10 @@ function main() {
             postes.forEach((poste) => {
                 scene.add(poste);
             });
+            montanhas.forEach((montanha) => {
+                scene.add(montanha);
+            });
+            scene.add(estatua);
             gameMode = true;
         }
         kartProps.currentSpeed = 0;
