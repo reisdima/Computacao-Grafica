@@ -32,7 +32,6 @@ function main() {
 
     var planeGeometry = new THREE.PlaneGeometry(700, 700, 40, 40);
     planeGeometry.translate(0.0, 0.0, -0.02);
-    // var planeMaterial = new THREE.MeshPhongMaterial({
     var planeMaterial = new THREE.MeshPhongMaterial({
         color: "rgba(20, 30, 110)",
         side: THREE.DoubleSide,
@@ -41,7 +40,6 @@ function main() {
         polygonOffsetUnits: 1,
     });
     var plane = new THREE.Mesh(planeGeometry, planeMaterial);
-    // plane.castShadow = true;
     plane.receiveShadow = true;
     scene.add(plane);
 
@@ -51,18 +49,11 @@ function main() {
     // scene.add(line);
     //Fim Criacao do Plano
 
-    // Variáveis para auxiliar no trabalho
-    var objectPosicaoFinal = {
-        x: 0,
-        y: 0,
-        z: 2,
-    };
-    var objectRotacaoFinal = {};
+   
     var center = new THREE.Vector3(0, 0, 1.75);
 
     var kartProps = {
         initialPosition: new THREE.Vector3(-5, -245, 1.75),
-        // initialPosition: new THREE.Vector3(0, 0, 1.75),
         currentPosition: new THREE.Vector3(0, 0, 1.75),
         angleRotationZ: 90,
         currentSpeed: 0,
@@ -82,7 +73,6 @@ function main() {
     var gameMode = true;
 
     var kartBody = {};
-    var kartSpeed = 0;
 
     kartBody = createKart();
     var kart = kartBody.corpo;
@@ -90,9 +80,6 @@ function main() {
     scene.add(spotLight);
     spotLight.target = kart;
     scene.add(directionalLight);
-    var postesOn = true;
-    var spotLightOn = true;
-    var direcitonalLightOn = true;
 
     //--------------------------------- Criar Montanhas //---------------------------------//
 
@@ -100,51 +87,39 @@ function main() {
     var objColor = "rgb(100, 70, 20)";
     var objOpacity = 1;
 
-    // Object Material
-    var objectMaterial = new THREE.MeshLambertMaterial({
+    //material utilizado para a montanha 
+    var mountainMaterial = new THREE.MeshLambertMaterial({
         color: objColor,
         opacity: objOpacity,
     });
 
-    //----------------------------------
-    // Create Convex Geometry
-    //----------------------------------
-    var sphereGeom = new THREE.SphereGeometry(0.2); // Sphere to represent points
-    var sphereMaterial = new THREE.MeshPhongMaterial({
-        color: "rgb(255,255,0)",
-    });
-
-    // Global variables to be removed from memory each interaction
-    var pointCloud = null;
-    var spGroup = null;
+ 
     var convexGeometry = null;
-    var pointCloudVisibility = true;
-    var objectVisibility = true;
-    var castShadow = true;
 
-    // Create convex object the first time
-    var montanhas = criaMontanhaUm();
+    var montanhas = criaMontanhas();
     montanhas.forEach((montanha) => {
         scene.add(montanha);
     });
 
     // criacao dos postes de luz
-    // let poste = createPoste(new THREE.Vector3(20, -260, 10.5));
     var postes = [];
-    // postes.push(poste);
-
     postes.push(createPoste(new THREE.Vector3(-208, -255, 10.5)));
-    postes.push(createPoste(new THREE.Vector3(4, 109, 10.5))); // certo
-    postes.push(createPoste(new THREE.Vector3(35, -260, 10.5))); //certo
-    postes.push(createPoste(new THREE.Vector3(-56, -260, 10.5)));//certo
-    postes.push(createPoste(new THREE.Vector3(167, 335, 10.5))); //certo
-    postes.push(createPoste(new THREE.Vector3(-277, 47, 10.5))); //certo
-    postes.push(createPoste(new THREE.Vector3(-344, 336, 10.5))); //certo
-    postes.push(createPoste(new THREE.Vector3(-122, -260, 10.5))); // certo
+    postes.push(createPoste(new THREE.Vector3(4, 109, 10.5))); 
+    postes.push(createPoste(new THREE.Vector3(35, -260, 10.5))); 
+    postes.push(createPoste(new THREE.Vector3(-56, -260, 10.5)));
+    postes.push(createPoste(new THREE.Vector3(167, 335, 10.5))); 
+    postes.push(createPoste(new THREE.Vector3(-277, 47, 10.5))); 
+    postes.push(createPoste(new THREE.Vector3(-344, 336, 10.5))); 
+    postes.push(createPoste(new THREE.Vector3(-122, -260, 10.5))); 
 
     postes.forEach((obj) => {
         scene.add(obj);
     });
+
+     // Carrega o objeto externo e o atribui a uma variável
+    
+     var estatua = null;
+     loadOBJFile("assets/", "Format_obj", true, 25);
 
     buildInterface();
 
@@ -172,11 +147,7 @@ function main() {
         },
         false
     );
-    //---------------------------------------------------------
-    // Load external objects
-    var estatua = null;
-    loadOBJFile("assets/", "Format_obj", true, 25);
-
+   
     function loadOBJFile(modelPath, modelName, visibility, desiredScale) {
         currentModel = modelName;
 
@@ -229,12 +200,11 @@ function main() {
     function onProgress(xhr, model) {
         if (xhr.lengthComputable) {
             var percentComplete = (xhr.loaded / xhr.total) * 100;
-            //infoBox.changeMessage("Loading... " + Math.round( percentComplete, 2 ) + '% processed' );
         }
     }
 
     function fixPosition(obj) {
-        // Fix position of the object over the ground plane
+       
         var box = new THREE.Box3().setFromObject(obj);
         if (box.min.y > 0) obj.translateY(-box.min.y);
         else obj.translateY(-1 * box.min.y);
@@ -242,7 +212,7 @@ function main() {
     }
 
     function normalizeAndRescale(obj, newScale) {
-        var scale = getMaxSize(obj); // Available in 'utils.js'
+        var scale = getMaxSize(obj); 
         obj.scale.set(
             newScale * (1.0 / scale),
             newScale * (1.0 / scale),
@@ -272,8 +242,6 @@ function main() {
         requestAnimationFrame(render);
         renderer.render(scene, camera); // Render scene
     }
-
-    //Inicio funcoes para criar as formas basicas
 
     function createCubeColor(width, height, depth, parent) {
         const geometry = new THREE.BoxGeometry(width, height, depth);
@@ -318,6 +286,7 @@ function main() {
         return torus;
     }
 
+    // cria objeto poste e adiciona luz
     function createPoste(position) {
         var poste = createCylinder(0.5, 0.5, 20, 0, "rgb(200,200,200)");
         poste.castShadow = true;
@@ -350,19 +319,8 @@ function main() {
         const sphereGeometry = new THREE.SphereGeometry(radius, 32, 32);
         const sphereMaterial = new THREE.MeshPhongMaterial({ color: color });
         const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-        // sphere.castShadow = true;
         return sphere;
     }
-    function setPointLight(light, position) {
-        light.position.copy(position);
-        light.name = "Point Light";
-        light.castShadow = true;
-        light.visible = true;
-
-        return light;
-    }
-
-    // fim funcoes para criar as formas basicas
 
     // funcao para criar o kart e suas partes
     function createKart() {
@@ -560,6 +518,8 @@ function main() {
 
     // fim funcao para criar kart e suas partes
 
+
+    // gera a nuvem de pontos
     function generatePoints(value) {
         var points = [];
 
@@ -588,60 +548,46 @@ function main() {
         points.push(new THREE.Vector3(value + 5, -value - 25, 32));
         points.push(new THREE.Vector3(0, -value - 25, 35));
         points.push(new THREE.Vector3(0, +value + 25, 35));
-        /*
-    spGroup = new THREE.Geometry();
-    spMesh = new THREE.Mesh(sphereGeom);
-    points.forEach(function (point) {
-      spMesh.position.set(point.x, point.y, point.z);
-      spMesh.updateMatrix();
-      spGroup.merge(spMesh.geometry, spMesh.matrix);
-    });
-
-    pointCloud = new THREE.Mesh(spGroup, sphereMaterial);
-     // pointCloud.castShadow = castShadow;
-      pointCloud.visible = pointCloudVisibility;
-      pointCloud.position.set(0,200,0);
-    scene.add(pointCloud);
-*/
+        
         return points;
     }
 
-    function criaMontanhaUm() {
-        // First, create the point vector to be used by the convex hull algorithm
+    function criaMontanhas() {
+        // Gera nuvem de pontos para cada montanha
         var localPointsUm = generatePoints(40);
         var localPointsDois = generatePoints(15);
         var localPointsTres = generatePoints(20);
         var localPointsCinco = generatePoints(5);
         var localPointsSeis = generatePoints(10);
-        // Then, build the convex geometry with the generated points
+        // Constroi a geometria com as nuvens de ponto
         convexGeometry = new THREE.ConvexBufferGeometry(localPointsUm);
         convexGeometry2 = new THREE.ConvexBufferGeometry(localPointsDois);
         convexGeometry3 = new THREE.ConvexBufferGeometry(localPointsTres);
         convexGeometry4 = new THREE.ConvexBufferGeometry(localPointsCinco);
         convexGeometry5 = new THREE.ConvexBufferGeometry(localPointsSeis);
 
-        var montanhas = [];
-        var montanhaMaiorUm = new THREE.Mesh(convexGeometry, objectMaterial);
+        var montanhas = []; // vetor de montanhas
+        var montanhaMaiorUm = new THREE.Mesh(convexGeometry, mountainMaterial);
         montanhaMaiorUm.visible = true;
         montanhaMaiorUm.position.set(-80, 20, 0);
         montanhaMaiorUm.castShadow = true;
 
-        var montanhaMaiorDois = new THREE.Mesh(convexGeometry2, objectMaterial);
+        var montanhaMaiorDois = new THREE.Mesh(convexGeometry2, mountainMaterial);
         montanhaMaiorDois.visible = true;
         montanhaMaiorDois.position.set(-20, 20, 0);
         montanhaMaiorDois.castShadow = true;
 
-        var montanhaMaiorTres = new THREE.Mesh(convexGeometry3, objectMaterial);
+        var montanhaMaiorTres = new THREE.Mesh(convexGeometry3, mountainMaterial);
         montanhaMaiorTres.visible = true;
         montanhaMaiorTres.position.set(-155, 20, 0);
         montanhaMaiorTres.castShadow = true;
 
-        var montanhaMenorUm = new THREE.Mesh(convexGeometry5, objectMaterial);
+        var montanhaMenorUm = new THREE.Mesh(convexGeometry5, mountainMaterial);
         montanhaMenorUm.visible = true;
         montanhaMenorUm.position.set(230, 170, 0);
         montanhaMenorUm.castShadow = true;
 
-        var montanhaMenorDois = new THREE.Mesh(convexGeometry4, objectMaterial);
+        var montanhaMenorDois = new THREE.Mesh(convexGeometry4, mountainMaterial);
         montanhaMenorDois.visible = true;
         montanhaMenorDois.position.set(280, 200, 0);
         montanhaMenorDois.castShadow = true;
@@ -750,10 +696,6 @@ function main() {
             kart.position.copy(center);
             scene.remove(plane);
 
-         //   scene.remove(line);
-         //   scene.remove(axesHelper);
-
-
             postes.forEach((poste) => {
                 scene.remove(poste);
             });
@@ -767,10 +709,8 @@ function main() {
         } else {
             kart.position.copy(kartProps.currentPosition);
 
-         //   scene.add(axesHelper);
 
             scene.add(plane);
-         //   scene.add(line);
             postes.forEach((poste) => {
                 scene.add(poste);
             });
@@ -782,7 +722,6 @@ function main() {
             gameMode = true;
         }
         kartProps.currentSpeed = 0;
-        // trackballControls.reset();
         camera.position.z = 15;
         moveCamera(kart.position, kart.position, vectUp, true);
     }
@@ -857,8 +796,6 @@ function main() {
                     -1;
             }
         }
-        // Reset Kart
-        // if (keyboard.pressed("space")) kart.position.set(0.0, 0.0, 2.0);
     }
 
     // funcao utilizada para manter a posicao da camera
@@ -882,18 +819,6 @@ function main() {
                 kartProps.currentPosition.y.toFixed(1) +
                 " " +
                 kartProps.currentPosition.z.toFixed(1)
-            // "  Look: " +
-            // cameraDirection.x.toFixed(1) +
-            // " " +
-            // cameraDirection.y.toFixed(1) +
-            // " " +
-            // cameraDirection.z.toFixed(1) +
-            // "  Up: " +
-            // vectUp.x.toFixed(1) +
-            // " " +
-            // vectUp.y.toFixed(1) +
-            // " " +
-            // vectUp.z.toFixed(1)
         );
         return secundaryBox;
     }
@@ -902,7 +827,6 @@ function main() {
     function createDirectionalLight() {
         const directionalLight = new THREE.DirectionalLight("rgb(241,218,164)");
         directionalLight.position.set(-37, -350, 40);
-        // directionalLight.position.set(1, 3, 200);
         directionalLight.shadow.mapSize.width = 2048;
         directionalLight.shadow.mapSize.height = 2048;
         directionalLight.castShadow = true;
@@ -916,18 +840,13 @@ function main() {
         directionalLight.target.position.set(0, 0, 0);
         directionalLight.shadow.camera.far = 1000;
         directionalLight.intensity = 5;
-        // directionalLight.decay = 5;
-        // scene.add(directionalLight);
         return directionalLight;
     }
 
     function createSpotLight() {
         const spotLight = new THREE.SpotLight("rgb(255,255,255)");
-        // spotLight.shadow.mapSize.width = 2048;
-        // spotLight.shadow.mapSize.height = 2048;
         spotLight.shadow.camera.fov = degreesToRadians(20);
-      //  spotLight.castShadow = true;
-
+    
         spotLight.decay = 2;
         spotLight.intensity = 1;
         spotLight.penumbra = 0.05;
