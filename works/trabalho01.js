@@ -340,6 +340,7 @@ function main() {
         pointLight.shadow.camera.near = 0.5; // default
         pointLight.shadow.camera.far = 500; // default
         poste.add(pointLight);
+        poste.light = pointLight;
 
         return poste;
     }
@@ -687,7 +688,7 @@ function main() {
 
             this.desligaPostes = function () {
                 postes.forEach(poste => {
-                    poste.visible = this.postes;
+                    poste.light.visible = this.postes;
                 })
             };
             this.desligaSpotLight = function () {
@@ -749,7 +750,7 @@ function main() {
             kart.position.copy(center);
             scene.remove(plane);
             scene.remove(line);
-            scene.remove(axesHelper);
+            // scene.remove(axesHelper);
             postes.forEach((poste) => {
                 scene.remove(poste);
             });
@@ -762,7 +763,7 @@ function main() {
             gameMode = false;
         } else {
             kart.position.copy(kartProps.currentPosition);
-            scene.add(axesHelper);
+            // scene.add(axesHelper);
             scene.add(plane);
             scene.add(line);
             postes.forEach((poste) => {
@@ -917,8 +918,8 @@ function main() {
 
     function createSpotLight() {
         const spotLight = new THREE.SpotLight("rgb(255,255,255)");
-        spotLight.shadow.mapSize.width = 2048;
-        spotLight.shadow.mapSize.height = 2048;
+        // spotLight.shadow.mapSize.width = 2048;
+        // spotLight.shadow.mapSize.height = 2048;
         spotLight.shadow.camera.fov = degreesToRadians(20);
         spotLight.castShadow = true;
 
@@ -931,12 +932,12 @@ function main() {
 
         // spotLight.castShadow = true;
 
-        // spotLight.shadow.mapSize.width = 1024;
-        // spotLight.shadow.mapSize.height = 1024;
+        spotLight.shadow.mapSize.width = 1024;
+        spotLight.shadow.mapSize.height = 1024;
 
-        // spotLight.shadow.camera.near = 500;
-        // spotLight.shadow.camera.far = 4000;
-        // spotLight.shadow.camera.fov = 30;
+        spotLight.shadow.camera.near = 500;
+        spotLight.shadow.camera.far = 4000;
+        spotLight.shadow.camera.fov = 30;
         return spotLight;
     }
 }
