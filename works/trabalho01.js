@@ -2,6 +2,7 @@ function main() {
     var stats = initStats(); // Mostra fps
     var scene = new THREE.Scene(); // Cria cena principal
     var renderer = initRenderer();
+    renderer.shadowMap.enabled = true;
     var light = initDefaultLighting(scene, new THREE.Vector3());
     var spotLight = createSpotLight();
     var clock = new THREE.Clock();
@@ -24,15 +25,15 @@ function main() {
     );
 
     // Mostra eixos
-    var axesHelper = new THREE.AxesHelper(12);
-    scene.add(axesHelper);
+    //var axesHelper = new THREE.AxesHelper(12);
+    //scene.add(axesHelper);
 
     //Inicio Criacao do Plano
 
     var planeGeometry = new THREE.PlaneGeometry(700, 700, 40, 40);
     planeGeometry.translate(0.0, 0.0, -0.02);
     // var planeMaterial = new THREE.MeshPhongMaterial({
-    var planeMaterial = new THREE.MeshLambertMaterial({
+    var planeMaterial = new THREE.MeshPhongMaterial({
         color: "rgba(20, 30, 110)",
         side: THREE.DoubleSide,
         polygonOffset: true,
@@ -40,14 +41,14 @@ function main() {
         polygonOffsetUnits: 1,
     });
     var plane = new THREE.Mesh(planeGeometry, planeMaterial);
-    // plane.castShadow = false;
+    //plane.castShadow = true;
     plane.receiveShadow = true;
     scene.add(plane);
 
     var wireframe = new THREE.WireframeGeometry(planeGeometry);
     var line = new THREE.LineSegments(wireframe);
     line.material.color.setStyle("rgb(180, 180, 180)");
-    scene.add(line);
+   // scene.add(line);
     //Fim Criacao do Plano
 
     // Variáveis para auxiliar no trabalho
@@ -101,8 +102,7 @@ function main() {
     // Object Material
     var objectMaterial = new THREE.MeshLambertMaterial({
         color: objColor,
-        opacity: objOpacity,
-        transparent: true,
+        opacity: objOpacity
     });
 
     //----------------------------------
@@ -131,7 +131,8 @@ function main() {
     // let poste = createPoste(new THREE.Vector3(20, -260, 10.5));
     // object = poste;
     var postes = [];
-    // postes.push(poste);
+    // postes.push(poste); 
+    
     postes.push(createPoste(new THREE.Vector3(20, -260, 10.5)));
     postes.push(createPoste(new THREE.Vector3(-20, -260, 10.5)));
     postes.push(createPoste(new THREE.Vector3(-10, -260, 10.5)));
@@ -144,7 +145,7 @@ function main() {
     postes.forEach((obj) => {
         scene.add(obj);
     });
-
+ 
     buildInterface(object);
 
     var information = showInformation();
@@ -174,7 +175,7 @@ function main() {
     //---------------------------------------------------------
     // Load external objects
     var estatua = null;
-    loadOBJFile("assets/", "Format_obj", true, 20);
+    loadOBJFile("assets/", "Format_obj", true, 25);
 
     function loadOBJFile(modelPath, modelName, visibility, desiredScale) {
         currentModel = modelName;
@@ -212,9 +213,10 @@ function main() {
                         degreesToRadians(-90),
                         0
                     );
-                    obj.position.set(-315, 320, 0);
+                    obj.position.set(-290, 280, 0);
                     estatua = obj;
-                    // scene.add(estatua);
+                    estatua.castShadow = true;
+                    scene.add(estatua);
                 },
                 onProgress,
                 onError
@@ -326,7 +328,7 @@ function main() {
     }
 
     function createPoste(position) {
-        var poste = createCylinder(0.5, 0.5, 20, 0);
+        var poste = createCylinder(0.5, 0.5, 20, 0,"rgb(200,200,200)");
         poste.castShadow = true;
         poste.rotation.set(degreesToRadians(90), 0, 0);
         poste.position.copy(position);
@@ -339,8 +341,13 @@ function main() {
         let pointLight = new THREE.PointLight(lightColor);
         pointLight.translateY(12);
         pointLight.castShadow = true;
+        pointLight.distance = (350);
         pointLight.intensity = 0.5;
         pointLight.visible = true;
+        pointLight.shadow.mapSize.width = 512; // default
+        pointLight.shadow.mapSize.height = 512; // default
+        pointLight.shadow.camera.near = 0.5; // default
+        pointLight.shadow.camera.far = 500; // default
         poste.add(pointLight);
 
         return poste;
@@ -351,7 +358,7 @@ function main() {
         const sphereGeometry = new THREE.SphereGeometry(radius, 32, 32);
         const sphereMaterial = new THREE.MeshPhongMaterial({ color: color });
         const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-        sphere.castShadow = true;
+       // sphere.castShadow = true;
         return sphere;
     }
     function setPointLight(light, position) {
@@ -624,23 +631,29 @@ function main() {
         var montanhas = [];
         var montanhaMaiorUm = new THREE.Mesh(convexGeometry, objectMaterial);
         montanhaMaiorUm.visible = true;
-        montanhaMaiorUm.position.set(-80, 100, 0);
+        montanhaMaiorUm.position.set(-80, 20, 0);
+        montanhaMaiorUm.castShadow = true;
 
         var montanhaMaiorDois = new THREE.Mesh(convexGeometry2, objectMaterial);
         montanhaMaiorDois.visible = true;
-        montanhaMaiorDois.position.set(-20, 100, 0);
+        montanhaMaiorDois.position.set(-20, 20, 0);
+        montanhaMaiorDois.castShadow = true;
 
         var montanhaMaiorTres = new THREE.Mesh(convexGeometry3, objectMaterial);
         montanhaMaiorTres.visible = true;
-        montanhaMaiorTres.position.set(-155, 100, 0);
+        montanhaMaiorTres.position.set(-155, 20, 0);
+        montanhaMaiorTres.castShadow = true;
+
 
         var montanhaMenorUm = new THREE.Mesh(convexGeometry5, objectMaterial);
         montanhaMenorUm.visible = true;
-        montanhaMenorUm.position.set(200, 300, 0);
+        montanhaMenorUm.position.set(230, 170, 0);
+        montanhaMenorUm.castShadow = true;
 
         var montanhaMenorDois = new THREE.Mesh(convexGeometry4, objectMaterial);
         montanhaMenorDois.visible = true;
-        montanhaMenorDois.position.set(250, 320, 0);
+        montanhaMenorDois.position.set(280, 200, 0);
+        montanhaMenorDois.castShadow = true;
 
         montanhas.push(montanhaMaiorUm);
         montanhas.push(montanhaMaiorDois);
@@ -780,12 +793,12 @@ function main() {
     function changeMode() {
         if (gameMode) {
             kart.position.copy(center);
-            // scene.remove(plane);
-            // scene.remove(line);
-            // scene.remove(axesHelper);
-            // postes.forEach((poste) => {
-            //     scene.remove(poste);
-            // });
+             scene.remove(plane);
+             scene.remove(line);
+             scene.remove(axesHelper);
+             postes.forEach((poste) => {
+             scene.remove(poste);
+             });
             montanhas.forEach((montanha) => {
                 scene.remove(montanha);
             });
@@ -925,12 +938,40 @@ function main() {
         return secundaryBox;
     }
 
-    function createSpotLight() {4
-        const spotLight = new THREE.SpotLight("rgb(150,150,150)");
+    createDirectionalLight();
+
+   
+
+    function createDirectionalLight() {
+        const directionalLight = new THREE.DirectionalLight("rgb(241,218,164)");
+        directionalLight.position.set(-37, -350, 40);
+        directionalLight.shadow.mapSize.width = 2048;
+        directionalLight.shadow.mapSize.height = 2048;
+        directionalLight.castShadow = true;
+
+
+        directionalLight.shadow.camera.width = 2048;
+        directionalLight.shadow.camera.height = 2048;
+        directionalLight.shadow.camera.left = -350;
+        directionalLight.shadow.camera.right = 350;
+        directionalLight.shadow.camera.top = 350;
+        directionalLight.shadow.camera.bottom = -350;
+        directionalLight.target.position.set(0,0,0);
+        directionalLight.shadow.camera.far = 1000;
+        directionalLight.intensity = 1;
+        scene.add(directionalLight);
+        const cameraHelper = new THREE.CameraHelper(directionalLight);     
+        scene.add(cameraHelper);
+    }
+
+
+    function createSpotLight() {
+        const spotLight = new THREE.SpotLight("rgb(255,255,255)");
         spotLight.shadow.mapSize.width = 2048;
         spotLight.shadow.mapSize.height = 2048;
         spotLight.shadow.camera.fov = degreesToRadians(20);
         spotLight.castShadow = true;
+        
         spotLight.decay = 2;
         spotLight.intensity = 1;
         spotLight.penumbra = 0.05;
