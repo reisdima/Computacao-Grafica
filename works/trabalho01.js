@@ -133,14 +133,14 @@ function main() {
     var postes = [];
     // postes.push(poste);
 
-    postes.push(createPoste(new THREE.Vector3(20, -260, 10.5)));
-    postes.push(createPoste(new THREE.Vector3(-20, -260, 10.5)));
-    postes.push(createPoste(new THREE.Vector3(-10, -260, 10.5)));
-    postes.push(createPoste(new THREE.Vector3(-40, -260, 10.5)));
-    postes.push(createPoste(new THREE.Vector3(40, -260, 10.5)));
-    postes.push(createPoste(new THREE.Vector3(60, -260, 10.5)));
-    postes.push(createPoste(new THREE.Vector3(80, -260, 10.5)));
-    postes.push(createPoste(new THREE.Vector3(-60, -260, 10.5)));
+    postes.push(createPoste(new THREE.Vector3(-208, -255, 10.5)));
+    postes.push(createPoste(new THREE.Vector3(4, 109, 10.5))); // certo
+    postes.push(createPoste(new THREE.Vector3(35, -260, 10.5))); //certo
+    postes.push(createPoste(new THREE.Vector3(-56, -260, 10.5)));//certo
+    postes.push(createPoste(new THREE.Vector3(167, 335, 10.5))); //certo
+    postes.push(createPoste(new THREE.Vector3(-277, 47, 10.5))); //certo
+    postes.push(createPoste(new THREE.Vector3(-344, 336, 10.5))); //certo
+    postes.push(createPoste(new THREE.Vector3(-122, -260, 10.5))); // certo
 
     postes.forEach((obj) => {
         scene.add(obj);
@@ -703,12 +703,12 @@ function main() {
                 if (gameMode) {
                     scene.remove(plane);
                     scene.remove(line);
-                    scene.remove(axesHelper);
+                 //   scene.remove(axesHelper);
                     gameMode = false;
                 } else {
-                    scene.add(axesHelper);
+                  //  scene.add(axesHelper);
                     scene.add(plane);
-                    scene.add(line);
+                //   scene.add(line);
                     gameMode = true;
                 }
                 resetKart();
@@ -748,8 +748,8 @@ function main() {
         if (gameMode) {
             kart.position.copy(center);
             scene.remove(plane);
-            scene.remove(line);
-            scene.remove(axesHelper);
+         //   scene.remove(line);
+         //   scene.remove(axesHelper);
             postes.forEach((poste) => {
                 scene.remove(poste);
             });
@@ -762,9 +762,9 @@ function main() {
             gameMode = false;
         } else {
             kart.position.copy(kartProps.currentPosition);
-            scene.add(axesHelper);
+         //   scene.add(axesHelper);
             scene.add(plane);
-            scene.add(line);
+         //   scene.add(line);
             postes.forEach((poste) => {
                 scene.add(poste);
             });
@@ -920,7 +920,7 @@ function main() {
         spotLight.shadow.mapSize.width = 2048;
         spotLight.shadow.mapSize.height = 2048;
         spotLight.shadow.camera.fov = degreesToRadians(20);
-        spotLight.castShadow = true;
+      //  spotLight.castShadow = true;
 
         spotLight.decay = 2;
         spotLight.intensity = 1;
@@ -929,14 +929,6 @@ function main() {
 
         spotLight.position.set(0, 0, 0);
 
-        // spotLight.castShadow = true;
-
-        // spotLight.shadow.mapSize.width = 1024;
-        // spotLight.shadow.mapSize.height = 1024;
-
-        // spotLight.shadow.camera.near = 500;
-        // spotLight.shadow.camera.far = 4000;
-        // spotLight.shadow.camera.fov = 30;
         return spotLight;
     }
 }
