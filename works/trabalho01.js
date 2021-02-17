@@ -3,8 +3,8 @@ function main() {
     var scene = new THREE.Scene(); // Cria cena principal
     var renderer = initRenderer();
     renderer.shadowMap.enabled = true;
-    var light = initDefaultLighting(scene, new THREE.Vector3());
     var spotLight = createSpotLight();
+    var directionalLight = createDirectionalLight();
     var clock = new THREE.Clock();
     var keyboard = new KeyboardState();
 
@@ -41,14 +41,14 @@ function main() {
         polygonOffsetUnits: 1,
     });
     var plane = new THREE.Mesh(planeGeometry, planeMaterial);
-    //plane.castShadow = true;
+    // plane.castShadow = true;
     plane.receiveShadow = true;
     scene.add(plane);
 
     var wireframe = new THREE.WireframeGeometry(planeGeometry);
     var line = new THREE.LineSegments(wireframe);
     line.material.color.setStyle("rgb(180, 180, 180)");
-   // scene.add(line);
+    // scene.add(line);
     //Fim Criacao do Plano
 
     // Variáveis para auxiliar no trabalho
@@ -62,7 +62,6 @@ function main() {
 
     var kartProps = {
         initialPosition: new THREE.Vector3(-5, -245, 1.75),
-        // initialPosition: new THREE.Vector3(0, 0, 1.75),
         // initialPosition: new THREE.Vector3(0, 0, 1.75),
         currentPosition: new THREE.Vector3(0, 0, 1.75),
         angleRotationZ: 90,
@@ -82,16 +81,18 @@ function main() {
     var kartRotation = 0;
     var gameMode = true;
 
-    var object = null;
     var kartBody = {};
     var kartSpeed = 0;
 
     kartBody = createKart();
-    //   var object = kartBody.object;
     var kart = kartBody.corpo;
     scene.add(kart);
     scene.add(spotLight);
     spotLight.target = kart;
+    scene.add(directionalLight);
+    var postesOn = true;
+    var spotLightOn = true;
+    var direcitonalLightOn = true;
 
     //--------------------------------- Criar Montanhas //---------------------------------//
 
@@ -102,7 +103,7 @@ function main() {
     // Object Material
     var objectMaterial = new THREE.MeshLambertMaterial({
         color: objColor,
-        opacity: objOpacity
+        opacity: objOpacity,
     });
 
     //----------------------------------
@@ -129,10 +130,9 @@ function main() {
 
     // criacao dos postes de luz
     // let poste = createPoste(new THREE.Vector3(20, -260, 10.5));
-    // object = poste;
     var postes = [];
-    // postes.push(poste); 
-    
+    // postes.push(poste);
+
     postes.push(createPoste(new THREE.Vector3(20, -260, 10.5)));
     postes.push(createPoste(new THREE.Vector3(-20, -260, 10.5)));
     postes.push(createPoste(new THREE.Vector3(-10, -260, 10.5)));
@@ -145,8 +145,8 @@ function main() {
     postes.forEach((obj) => {
         scene.add(obj);
     });
- 
-    buildInterface(object);
+
+    buildInterface();
 
     var information = showInformation();
 
@@ -260,9 +260,7 @@ function main() {
         } else {
             trackballControls.update(); // Enable mouse movements
         }
-        moveObject(object);
         moveKart();
-        // lightFollowingCamera(light, camera);
         information.changeMessage(
             "Pos: " +
                 kartProps.currentPosition.x.toFixed(1) +
@@ -270,13 +268,6 @@ function main() {
                 kartProps.currentPosition.y.toFixed(1) +
                 " " +
                 kartProps.currentPosition.z.toFixed(1)
-            // +
-            // "   Object: " +
-            // object.position.x.toFixed(1) +
-            // " " +
-            // object.position.y.toFixed(1) +
-            // " " +
-            // object.position.z.toFixed(1)
         );
         requestAnimationFrame(render);
         renderer.render(scene, camera); // Render scene
@@ -328,7 +319,7 @@ function main() {
     }
 
     function createPoste(position) {
-        var poste = createCylinder(0.5, 0.5, 20, 0,"rgb(200,200,200)");
+        var poste = createCylinder(0.5, 0.5, 20, 0, "rgb(200,200,200)");
         poste.castShadow = true;
         poste.rotation.set(degreesToRadians(90), 0, 0);
         poste.position.copy(position);
@@ -341,7 +332,7 @@ function main() {
         let pointLight = new THREE.PointLight(lightColor);
         pointLight.translateY(12);
         pointLight.castShadow = true;
-        pointLight.distance = (350);
+        pointLight.distance = 350;
         pointLight.intensity = 0.5;
         pointLight.visible = true;
         pointLight.shadow.mapSize.width = 512; // default
@@ -358,7 +349,7 @@ function main() {
         const sphereGeometry = new THREE.SphereGeometry(radius, 32, 32);
         const sphereMaterial = new THREE.MeshPhongMaterial({ color: color });
         const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-       // sphere.castShadow = true;
+        // sphere.castShadow = true;
         return sphere;
     }
     function setPointLight(light, position) {
@@ -644,7 +635,6 @@ function main() {
         montanhaMaiorTres.position.set(-155, 20, 0);
         montanhaMaiorTres.castShadow = true;
 
-
         var montanhaMenorUm = new THREE.Mesh(convexGeometry5, objectMaterial);
         montanhaMenorUm.visible = true;
         montanhaMenorUm.position.set(230, 170, 0);
@@ -664,23 +654,6 @@ function main() {
         return montanhas;
     }
     ///////////////// FIM MOnTANHA
-
-    // Inicio funcao auxiliar para ajudar a posicionar as formas
-    function moveObject(object) {
-        if (!object) return;
-        object.position.set(
-            objectPosicaoFinal.x,
-            objectPosicaoFinal.y,
-            objectPosicaoFinal.z
-        );
-        object.rotation.set(
-            degreesToRadians(objectRotacaoFinal.x),
-            degreesToRadians(objectRotacaoFinal.y),
-            degreesToRadians(objectRotacaoFinal.z)
-        );
-    }
-
-    // fim funcao para ajudar a posicionar as formas
 
     // movimentacao das rodas
     function moveKart() {
@@ -706,24 +679,22 @@ function main() {
         );
     }
 
-    function buildInterface(object) {
+    function buildInterface() {
         var controls = new (function () {
-            this.x = object ? object.position.x : 0;
-            this.y = object ? object.position.y : 0;
-            this.z = object ? object.position.z : 0;
-            this.rotationX = object ? object.rotation.x : 0;
-            this.rotationY = object ? object.rotation.y : 0;
-            this.rotationZ = object ? object.rotation.z : 0;
+            this.postes = true;
+            this.spotLight = true;
+            this.directionalLight = true;
 
-            this.move = function () {
-                objectPosicaoFinal.x = this.x;
-                objectPosicaoFinal.y = this.y;
-                objectPosicaoFinal.z = this.z;
+            this.desligaPostes = function () {
+                postes.forEach(poste => {
+                    poste.visible = this.postes;
+                })
             };
-            this.rotate = function () {
-                objectRotacaoFinal.x = this.rotationX;
-                objectRotacaoFinal.y = this.rotationY;
-                objectRotacaoFinal.z = this.rotationZ;
+            this.desligaSpotLight = function () {
+                spotLight.visible = this.spotLight;
+            };
+            this.desligaDirectionalLight = function () {
+                directionalLight.visible = this.directionalLight;
             };
         })();
 
@@ -749,38 +720,21 @@ function main() {
         // GUI interface
         var gui = new dat.GUI();
         // Movimento
-        gui.add(controls, "x", -7.0, 20.0)
+        gui.add(controls, "postes")
             .onChange(function (e) {
-                controls.move();
+                controls.desligaPostes();
             })
-            .name("X");
-        gui.add(controls, "y", -7.0, 5.0)
+            .name("Luzes dos Postes");
+        gui.add(controls, "spotLight")
             .onChange(function (e) {
-                controls.move();
+                controls.desligaSpotLight();
             })
-            .name("Y");
-        gui.add(controls, "z", -7.0, 5.0)
+            .name("Luz do SpotLight");
+        gui.add(controls, "directionalLight")
             .onChange(function (e) {
-                controls.move();
+                controls.desligaDirectionalLight();
             })
-            .name("Z");
-        // Rotação
-        gui.add(controls, "rotationX", -180, 180)
-            .onChange(function (e) {
-                controls.rotate();
-            })
-            .name("rotationX");
-        gui.add(controls, "rotationY", -180, 180)
-            .onChange(function (e) {
-                controls.rotate();
-            })
-            .name("rotationY");
-        gui.add(controls, "rotationZ", -180, 180)
-            .onChange(function (e) {
-                controls.rotate();
-            })
-            .name("rotationZ");
-        gui.add(obj, "Modo Jogo");
+            .name("Luz do Sol");
     }
 
     function resetKart() {
@@ -793,12 +747,12 @@ function main() {
     function changeMode() {
         if (gameMode) {
             kart.position.copy(center);
-             scene.remove(plane);
-             scene.remove(line);
-             scene.remove(axesHelper);
-             postes.forEach((poste) => {
-             scene.remove(poste);
-             });
+            scene.remove(plane);
+            scene.remove(line);
+            scene.remove(axesHelper);
+            postes.forEach((poste) => {
+                scene.remove(poste);
+            });
             montanhas.forEach((montanha) => {
                 scene.remove(montanha);
             });
@@ -938,17 +892,14 @@ function main() {
         return secundaryBox;
     }
 
-    createDirectionalLight();
-
-   
 
     function createDirectionalLight() {
         const directionalLight = new THREE.DirectionalLight("rgb(241,218,164)");
         directionalLight.position.set(-37, -350, 40);
+        // directionalLight.position.set(1, 3, 200);
         directionalLight.shadow.mapSize.width = 2048;
         directionalLight.shadow.mapSize.height = 2048;
         directionalLight.castShadow = true;
-
 
         directionalLight.shadow.camera.width = 2048;
         directionalLight.shadow.camera.height = 2048;
@@ -956,14 +907,13 @@ function main() {
         directionalLight.shadow.camera.right = 350;
         directionalLight.shadow.camera.top = 350;
         directionalLight.shadow.camera.bottom = -350;
-        directionalLight.target.position.set(0,0,0);
+        directionalLight.target.position.set(0, 0, 0);
         directionalLight.shadow.camera.far = 1000;
-        directionalLight.intensity = 1;
-        scene.add(directionalLight);
-        const cameraHelper = new THREE.CameraHelper(directionalLight);     
-        scene.add(cameraHelper);
+        directionalLight.intensity = 5;
+        // directionalLight.decay = 5;
+        // scene.add(directionalLight);
+        return directionalLight;
     }
-
 
     function createSpotLight() {
         const spotLight = new THREE.SpotLight("rgb(255,255,255)");
@@ -971,7 +921,7 @@ function main() {
         spotLight.shadow.mapSize.height = 2048;
         spotLight.shadow.camera.fov = degreesToRadians(20);
         spotLight.castShadow = true;
-        
+
         spotLight.decay = 2;
         spotLight.intensity = 1;
         spotLight.penumbra = 0.05;
