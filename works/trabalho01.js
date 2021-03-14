@@ -33,7 +33,6 @@ function main() {
     var planeGeometry = new THREE.PlaneGeometry(700, 700, 40, 40);
     planeGeometry.translate(0.0, 0.0, -0.02);
     var planeMaterial = new THREE.MeshPhongMaterial({
-        color: "rgba(20, 30, 110)",
         side: THREE.DoubleSide,
         polygonOffset: true,
         polygonOffsetFactor: 1,
@@ -41,13 +40,57 @@ function main() {
     });
     var plane = new THREE.Mesh(planeGeometry, planeMaterial);
     plane.receiveShadow = true;
-    scene.add(plane);
+
+
+    var planeGeometry2 = new THREE.PlaneGeometry(1000, 1000, 40, 40);
+    planeGeometry2.translate(0.0, 0.0, -0.1);
+    var planeMaterial2 = new THREE.MeshPhongMaterial({
+        side: THREE.DoubleSide,
+        polygonOffset: true,
+        polygonOffsetFactor: 1,
+        polygonOffsetUnits: 1,
+    });
+    var plane2 = new THREE.Mesh(planeGeometry2, planeMaterial2);
+    plane2.receiveShadow = true;
+   
+     // TEXTURAS Plano
+     var textureLoader = new THREE.TextureLoader();
+     var stone = textureLoader.load('assets/pista.jpg');
+     var sand = textureLoader.load('assets/sand.jpg');
+     plane.material.map = stone;
+     plane2.material.map = sand;
+     scene.add(plane);
+     scene.add(plane2);
 
     var wireframe = new THREE.WireframeGeometry(planeGeometry);
     var line = new THREE.LineSegments(wireframe);
     line.material.color.setStyle("rgb(180, 180, 180)");
     // scene.add(line);
     //Fim Criacao do Plano
+
+    //skybox 
+
+    let vetorMaterial = [];
+    let texture_ft = new THREE.TextureLoader().load('assets/pista.jpg');
+    let texture_bk = new THREE.TextureLoader().load('assets/pista.jpg');
+    let texture_up = new THREE.TextureLoader().load('assets/pista.jpg');
+    let texture_dn = new THREE.TextureLoader().load('assets/pista.jpg');
+    let texture_rt = new THREE.TextureLoader().load('assets/pista.jpg');
+    let texture_lf = new THREE.TextureLoader().load('assets/pista.jpg');
+  
+    vetorMaterial.push(new THREE.MeshPhongMaterial( { map: texture_ft }));
+    vetorMaterial.push(new THREE.MeshPhongMaterial( { map: texture_bk }));
+    vetorMaterial.push(new THREE.MeshPhongMaterial( { map: texture_up }));
+    vetorMaterial.push(new THREE.MeshPhongMaterial( { map: texture_dn }));
+    vetorMaterial.push(new THREE.MeshPhongMaterial( { map: texture_rt }));
+    vetorMaterial.push(new THREE.MeshPhongMaterial( { map: texture_lf }));
+   
+for (let i = 0; i < 6; i++)
+vetorMaterial[i].side = THREE.BackSide;
+   
+let skyboxGeo = new THREE.BoxGeometry( 10000, 10000, 10000);
+let skybox = new THREE.Mesh( skyboxGeo, vetorMaterial );
+scene.add(skybox);
 
    
     var center = new THREE.Vector3(0, 0, 1.75);
@@ -103,14 +146,14 @@ function main() {
 
     // criacao dos postes de luz
     var postes = [];
-    postes.push(createPoste(new THREE.Vector3(-208, -255, 10.5)));
+    postes.push(createPoste(new THREE.Vector3(-210, -264, 10.5)));
     postes.push(createPoste(new THREE.Vector3(4, 109, 10.5))); 
-    postes.push(createPoste(new THREE.Vector3(35, -260, 10.5))); 
-    postes.push(createPoste(new THREE.Vector3(-56, -260, 10.5)));
+    postes.push(createPoste(new THREE.Vector3(35, -264, 10.5))); 
+    postes.push(createPoste(new THREE.Vector3(-56, -264, 10.5)));
     postes.push(createPoste(new THREE.Vector3(167, 335, 10.5))); 
-    postes.push(createPoste(new THREE.Vector3(-277, 47, 10.5))); 
+    postes.push(createPoste(new THREE.Vector3(-267, 45, 10.5))); 
     postes.push(createPoste(new THREE.Vector3(-344, 336, 10.5))); 
-    postes.push(createPoste(new THREE.Vector3(-122, -260, 10.5))); 
+    postes.push(createPoste(new THREE.Vector3(-122, -264, 10.5))); 
 
     postes.forEach((obj) => {
         scene.add(obj);
@@ -120,6 +163,10 @@ function main() {
     
      var estatua = null;
      loadOBJFile("assets/", "Format_obj", true, 25);
+     var obj1 = null;
+     loadOBJFile2("assets/", "tree_mango_var01", true, 25);
+
+     scene.add(plane);
 
     buildInterface();
 
@@ -184,10 +231,11 @@ function main() {
                         degreesToRadians(-90),
                         0
                     );
-                    obj.position.set(-290, 280, 0);
-                    estatua = obj;
-                    estatua.castShadow = true;
-                    scene.add(estatua);
+                    obj.position.set(-290, 220, 0);
+                    obj1 = obj;
+                    obj1.castShadow = true;
+                    scene.add(obj1);
+                    
                 },
                 onProgress,
                 onError
@@ -220,6 +268,81 @@ function main() {
         );
         return obj;
     }
+
+    function loadOBJFile2(modelPath, modelName, visibility, desiredScale) {
+        currentModel = modelName;
+
+        var manager = new THREE.LoadingManager();
+
+        var mtlLoader = new THREE.MTLLoader(manager);
+        mtlLoader.setPath(modelPath);
+        mtlLoader.load(modelName + ".mtl", function (materials) {
+            materials.preload();
+
+            var objLoader = new THREE.OBJLoader(manager);
+            objLoader.setMaterials(materials);
+            objLoader.setPath(modelPath);
+            objLoader.load(
+                modelName + ".obj",
+                function (obj) {
+                    obj.name = modelName;
+                    obj.visible = visibility;
+                    // Set 'castShadow' property for each children of the group
+                    obj.traverse(function (child) {
+                        child.castShadow = true;
+                    });
+
+                    obj.traverse(function (node) {
+                        if (node.material)
+                            node.material.side = THREE.DoubleSide;
+                    });
+
+                    var obj = normalizeAndRescale(obj, desiredScale);
+                    var obj = fixPosition(obj);
+
+                    obj.rotation.set(
+                        degreesToRadians(90),
+                        degreesToRadians(-90),
+                        0
+                    );
+                    obj.position.set(-290, 280, 0);
+                    estatua = obj;
+                    estatua.castShadow = true;
+                    scene.add(estatua);
+                    
+                },
+                onProgress,
+                onError
+            );
+        });
+    }
+
+    function onError() {}
+
+    function onProgress(xhr, model) {
+        if (xhr.lengthComputable) {
+            var percentComplete = (xhr.loaded / xhr.total) * 100;
+        }
+    }
+
+    function fixPosition(obj) {
+       
+        var box = new THREE.Box3().setFromObject(obj);
+        if (box.min.y > 0) obj.translateY(-box.min.y);
+        else obj.translateY(-1 * box.min.y);
+        return obj;
+    }
+
+    function normalizeAndRescale(obj, newScale) {
+        var scale = getMaxSize(obj); 
+        obj.scale.set(
+            newScale * (1.0 / scale),
+            newScale * (1.0 / scale),
+            newScale * (1.0 / scale)
+        );
+        return obj;
+    }
+   
 
     render();
     function render() {
@@ -286,6 +409,7 @@ function main() {
         return torus;
     }
 
+    
     // cria objeto poste e adiciona luz
     function createPoste(position) {
         var poste = createCylinder(0.5, 0.5, 20, 0, "rgb(200,200,200)");
@@ -298,7 +422,7 @@ function main() {
         poste.add(lightSphere);
 
         let lightColor = "rgb(255,255,255)";
-        let pointLight = new THREE.PointLight(lightColor);
+        /*let pointLight = new THREE.PointLight(lightColor);
         pointLight.translateY(12);
         pointLight.castShadow = true;
         pointLight.distance = 350;
@@ -307,9 +431,9 @@ function main() {
         pointLight.shadow.mapSize.width = 512; // default
         pointLight.shadow.mapSize.height = 512; // default
         pointLight.shadow.camera.near = 0.5; // default
-        pointLight.shadow.camera.far = 500; // default
-        poste.add(pointLight);
-        poste.light = pointLight;
+        pointLight.shadow.camera.far = 500; // default */
+        poste.add(spotLight); //troquei a pointlight por spotlight daniel
+        poste.light = spotLight; // troquei a pointlight por spotlight daniel
 
         return poste;
     }
@@ -416,7 +540,9 @@ function main() {
             degreesToRadians(5)
         );
         supAero1.add(aero);
-
+        
+        
+       
         //bico
 
         var bico = createCubeColor(0.85, 0.08, 2.15, "#1eff00");
@@ -455,6 +581,8 @@ function main() {
         let kart = {};
         kart.corpo = mainCube;
         kart.eixoFrontal = frontWheels;
+
+        
 
         // return {
         //   main: kart,
@@ -526,14 +654,14 @@ function main() {
         //base
         points.push(new THREE.Vector3(value + 5, value + 35, 0));
         points.push(new THREE.Vector3(value + 2, -value - 35, 0));
-        points.push(new THREE.Vector3(-value - 25, -value - 55, 0));
-        points.push(new THREE.Vector3(value + 50, value + 15, 0));
-        points.push(new THREE.Vector3(value + 45, value + 5, 0));
-        points.push(new THREE.Vector3(-value - 60, value + 5, 0));
-        points.push(new THREE.Vector3(+value + 60, value + 5, 0));
-        points.push(new THREE.Vector3(value + 2, -value - 70, 0));
-        points.push(new THREE.Vector3(value + 45, -value - 25, 0));
-        points.push(new THREE.Vector3(-value - 55, -value - 25, 0));
+       points.push(new THREE.Vector3(-value - 25, -value - 0, 0));
+        points.push(new THREE.Vector3(value + 30, value + 15, 0)); //<-
+       points.push(new THREE.Vector3(value + 30, value + 5, 0));//
+       points.push(new THREE.Vector3(-value - 40, value + 5, 0));
+       points.push(new THREE.Vector3(+value + 30, value + 5, 0));
+        points.push(new THREE.Vector3(value + 2, -value - 0, 0)); //
+        points.push(new THREE.Vector3(value + 30, -value - 25, 0));
+        points.push(new THREE.Vector3(-value - 45, -value - 25, 0));//
 
         //partes mais altas
         points.push(new THREE.Vector3(value + 35, 5, 19));
@@ -565,31 +693,31 @@ function main() {
         convexGeometry3 = new THREE.ConvexBufferGeometry(localPointsTres);
         convexGeometry4 = new THREE.ConvexBufferGeometry(localPointsCinco);
         convexGeometry5 = new THREE.ConvexBufferGeometry(localPointsSeis);
-
+        
         var montanhas = []; // vetor de montanhas
         var montanhaMaiorUm = new THREE.Mesh(convexGeometry, mountainMaterial);
         montanhaMaiorUm.visible = true;
-        montanhaMaiorUm.position.set(-80, 20, 0);
+        montanhaMaiorUm.position.set(6, 2, 0);
         montanhaMaiorUm.castShadow = true;
 
         var montanhaMaiorDois = new THREE.Mesh(convexGeometry2, mountainMaterial);
         montanhaMaiorDois.visible = true;
-        montanhaMaiorDois.position.set(-20, 20, 0);
+        montanhaMaiorDois.position.set(50, 20, 0);
         montanhaMaiorDois.castShadow = true;
 
         var montanhaMaiorTres = new THREE.Mesh(convexGeometry3, mountainMaterial);
         montanhaMaiorTres.visible = true;
-        montanhaMaiorTres.position.set(-155, 20, 0);
+        montanhaMaiorTres.position.set(-0, 20, 0);
         montanhaMaiorTres.castShadow = true;
 
         var montanhaMenorUm = new THREE.Mesh(convexGeometry5, mountainMaterial);
         montanhaMenorUm.visible = true;
-        montanhaMenorUm.position.set(230, 170, 0);
+        montanhaMenorUm.position.set(360, 170, 0);
         montanhaMenorUm.castShadow = true;
 
         var montanhaMenorDois = new THREE.Mesh(convexGeometry4, mountainMaterial);
         montanhaMenorDois.visible = true;
-        montanhaMenorDois.position.set(280, 200, 0);
+        montanhaMenorDois.position.set(390, 200, 0);
         montanhaMenorDois.castShadow = true;
 
         montanhas.push(montanhaMaiorUm);
@@ -602,17 +730,17 @@ function main() {
     }
     ///////////////// FIM MOnTANHA
 
-    // movimentacao das rodas
+    // movimentacao do kart
     function moveKart() {
         let delta = clock.getDelta();
 
         let moveDistance = kartProps.currentSpeed * delta;
-        kart.translateX(moveDistance);
+        kart.translateX(moveDistance); //mover kart
         if (gameMode) {
             kartProps.currentPosition.copy(kart.position);
         }
 
-        kart.rotateOnAxis(new THREE.Vector3(0, 0, 1), kartRotation);
+        kart.rotateOnAxis(new THREE.Vector3(0, 0, 1), kartRotation); // rotacionar o kart
         kartBody.eixoFrontal.leftWheel.rotation.set(
             kartBody.eixoFrontal.leftWheel.rotation.x,
             degreesToRadians(wheelsRotation),
@@ -649,12 +777,14 @@ function main() {
             "Modo Jogo": function () {
                 if (gameMode) {
                     scene.remove(plane);
+                    scene.remove(plane2);
                     scene.remove(line);
                  //   scene.remove(axesHelper);
                     gameMode = false;
                 } else {
                   //  scene.add(axesHelper);
                     scene.add(plane);
+                    scene.add(plane2);
                 //   scene.add(line);
                     gameMode = true;
                 }
@@ -695,6 +825,7 @@ function main() {
         if (gameMode) {
             kart.position.copy(center);
             scene.remove(plane);
+            scene.remove(plane2);
 
             postes.forEach((poste) => {
                 scene.remove(poste);
@@ -711,6 +842,7 @@ function main() {
 
 
             scene.add(plane);
+            scene.add(plane2);
             postes.forEach((poste) => {
                 scene.add(poste);
             });
@@ -764,7 +896,7 @@ function main() {
                 keyboard.pressed("up") &&
                 kartProps.currentSpeed < kartProps.maxSpeed
             ) {
-                if (kartProps.currentSpeed < 0) speedFactor = 4;
+                if (kartProps.currentSpeed < 0) speedFactor = 4; // se a velocidade atual for menor que 0, aumenta o speed factor e o carro parará mais rapido
                 kartProps.currentSpeed += kartProps.acceleration * speedFactor;
             } else if (
                 keyboard.pressed("down") &&
