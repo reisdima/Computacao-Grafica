@@ -71,12 +71,12 @@ function main() {
     //skybox 
 
     let vetorMaterial = [];
-    let texture_ft = new THREE.TextureLoader().load('assets/pista.jpg');
-    let texture_bk = new THREE.TextureLoader().load('assets/pista.jpg');
-    let texture_up = new THREE.TextureLoader().load('assets/pista.jpg');
-    let texture_dn = new THREE.TextureLoader().load('assets/pista.jpg');
-    let texture_rt = new THREE.TextureLoader().load('assets/pista.jpg');
-    let texture_lf = new THREE.TextureLoader().load('assets/pista.jpg');
+    let texture_ft = new THREE.TextureLoader().load('assets/arid2_ft.jpg');
+    let texture_bk = new THREE.TextureLoader().load('assets/arid2_bk.jpg');
+    let texture_up = new THREE.TextureLoader().load('assets/arid2_up.jpg');
+    let texture_dn = new THREE.TextureLoader().load('assets/arid2_dn.jpg');
+    let texture_rt = new THREE.TextureLoader().load('assets/arid2_rt.jpg');
+    let texture_lf = new THREE.TextureLoader().load('assets/arid2_lf.jpg');
   
     vetorMaterial.push(new THREE.MeshPhongMaterial( { map: texture_ft }));
     vetorMaterial.push(new THREE.MeshPhongMaterial( { map: texture_bk }));
@@ -151,8 +151,8 @@ scene.add(skybox);
     postes.push(createPoste(new THREE.Vector3(35, -264, 10.5))); 
     postes.push(createPoste(new THREE.Vector3(-56, -264, 10.5)));
     postes.push(createPoste(new THREE.Vector3(167, 335, 10.5))); 
-    postes.push(createPoste(new THREE.Vector3(-267, 45, 10.5))); 
-    postes.push(createPoste(new THREE.Vector3(-344, 336, 10.5))); 
+    postes.push(createPoste(new THREE.Vector3(-169, 4, 10.5))); 
+    postes.push(createPoste(new THREE.Vector3(-303, 302, 10.5))); 
     postes.push(createPoste(new THREE.Vector3(-122, -264, 10.5))); 
 
     postes.forEach((obj) => {
@@ -163,8 +163,11 @@ scene.add(skybox);
     
      var estatua = null;
      loadOBJFile("assets/", "Format_obj", true, 25);
-     var obj1 = null;
-     loadOBJFile2("assets/", "tree_mango_var01", true, 25);
+     var placaPare = null;
+     loadOBJFile2("assets/", "pare", true, 25);
+
+     var pontoBus = null;
+     loadOBJFile3("assets/", "bus_stop", true, 50);
 
      scene.add(plane);
 
@@ -231,10 +234,10 @@ scene.add(skybox);
                         degreesToRadians(-90),
                         0
                     );
-                    obj.position.set(-290, 220, 0);
-                    obj1 = obj;
-                    obj1.castShadow = true;
-                    scene.add(obj1);
+                    obj.position.set(-157, 187, 0);
+                    estatua = obj;
+                    estatua.castShadow = true;
+                    scene.add(estatua);
                     
                 },
                 onProgress,
@@ -302,13 +305,13 @@ scene.add(skybox);
 
                     obj.rotation.set(
                         degreesToRadians(90),
-                        degreesToRadians(-90),
+                        degreesToRadians(90),
                         0
                     );
-                    obj.position.set(-290, 280, 0);
-                    estatua = obj;
-                    estatua.castShadow = true;
-                    scene.add(estatua);
+                    obj.position.set(222,-190, 0);
+                    placaPare = obj;
+                    placaPare.castShadow = true;
+                    scene.add(placaPare);
                     
                 },
                 onProgress,
@@ -317,31 +320,56 @@ scene.add(skybox);
         });
     }
 
-    function onError() {}
 
-    function onProgress(xhr, model) {
-        if (xhr.lengthComputable) {
-            var percentComplete = (xhr.loaded / xhr.total) * 100;
-        }
+    function loadOBJFile3(modelPath, modelName, visibility, desiredScale) {
+        currentModel = modelName;
+
+        var manager = new THREE.LoadingManager();
+
+        var mtlLoader = new THREE.MTLLoader(manager);
+        mtlLoader.setPath(modelPath);
+        mtlLoader.load(modelName + ".mtl", function (materials) {
+            materials.preload();
+
+            var objLoader = new THREE.OBJLoader(manager);
+            objLoader.setMaterials(materials);
+            objLoader.setPath(modelPath);
+            objLoader.load(
+                modelName + ".obj",
+                function (obj) {
+                    obj.name = modelName;
+                    obj.visible = visibility;
+                    // Set 'castShadow' property for each children of the group
+                    obj.traverse(function (child) {
+                        child.castShadow = true;
+                    });
+
+                    obj.traverse(function (node) {
+                        if (node.material)
+                            node.material.side = THREE.DoubleSide;
+                    });
+
+                    var obj = normalizeAndRescale(obj, desiredScale);
+                    var obj = fixPosition(obj);
+
+                    obj.rotation.set(
+                        degreesToRadians(90),
+                        degreesToRadians(90),
+                        0
+                    );
+                    obj.position.set(-190,-33, 0);
+                    pontoBus = obj;
+                    pontoBus.castShadow = true;
+                    scene.add(pontoBus);
+                    
+                },
+                onProgress,
+                onError
+            );
+        });
     }
 
-    function fixPosition(obj) {
-       
-        var box = new THREE.Box3().setFromObject(obj);
-        if (box.min.y > 0) obj.translateY(-box.min.y);
-        else obj.translateY(-1 * box.min.y);
-        return obj;
-    }
-
-    function normalizeAndRescale(obj, newScale) {
-        var scale = getMaxSize(obj); 
-        obj.scale.set(
-            newScale * (1.0 / scale),
-            newScale * (1.0 / scale),
-            newScale * (1.0 / scale)
-        );
-        return obj;
-    }
+   
    
 
     render();
@@ -448,7 +476,8 @@ scene.add(skybox);
 
     // funcao para criar o kart e suas partes
     function createKart() {
-        var mainCube = createCubeColor(4, 2, 1, "#3e403e");
+        var textureLoader = new THREE.TextureLoader();
+        var mainCube = createCubeColor(4, 2, 1);
         mainCube.position.copy(kartProps.initialPosition);
 
         //separacao pro banco
@@ -470,6 +499,9 @@ scene.add(skybox);
         part4.rotation.set(0, 0, degreesToRadians(90));
         mainCube.add(part4);
 
+        
+
+
         //cadeira assento
         var assento = createCubeColor(2.0, 0.1, 1.5, "#ffffff");
         assento.position.set(-0.95, 0, 0.55);
@@ -483,13 +515,25 @@ scene.add(skybox);
         encosto.rotation.set(0, 0, degreesToRadians(90));
         mainCube.add(encosto);
 
+
+        //textura cadeiras 
+        var texture5 = textureLoader.load('assets/chair.jpg');
+        
+        encosto.material.map = texture5;
+        assento.material.map = texture5;
+
+
         //cubo da frente
-        var frontCube = createCubeColor(2, 1, 1, "#1eff00");
+        var frontCube = createCubeColor(2, 1, 1);
         frontCube.position.set(2.5, 0.0, -0.35);
 
         //cubo de tras
-        var backCube = createCubeColor(2, 1, 1, "#1eff00");
+        var backCube = createCubeColor(2, 1, 1);
         backCube.position.set(-2.5, 0.0, -0.35);
+        var textureCubes = textureLoader.load('assets/car.jpg');
+        
+        frontCube.material.map = textureCubes;
+        backCube.material.map = textureCubes;
 
         mainCube.add(frontCube);
         mainCube.add(backCube);
@@ -503,10 +547,30 @@ scene.add(skybox);
         var supportBackCube = createCubeColor(5, 1, 1, "#3e403e");
         supportBackCube.position.set(-6.5, 0, 0);
         supportBackCube.rotation.set(0, 0, degreesToRadians(90));
+       
+
+
+        //textura backcube
+        var backCubeTexture = createCubeColor(5, 1, 1);
+        backCubeTexture.position.set(-6.5, 0, 0);
+        backCubeTexture.rotation.set(0, 0, degreesToRadians(90));
+        var texture3 = textureLoader.load('assets/neon.jpg');
+        backCubeTexture.material.map = texture3;
+
+
+        //textura frontcube
+        var frontCubeTexture= createCubeColor(5, 0.75, 1.1);
+        frontCubeTexture.position.set(1.0, 0, 0);
+        frontCubeTexture.rotation.set(0, 0, degreesToRadians(90));
+        var texture4 = textureLoader.load('assets/neon.jpg');
+        frontCubeTexture.material.map = texture4;
+
 
         frontCube.add(supportFrontCube);
 
         frontCube.add(supportBackCube);
+        frontCube.add(backCubeTexture);
+        frontCube.add(frontCubeTexture);
 
         //criacao das rodas
         var frontWheels = createRoda();
@@ -540,6 +604,30 @@ scene.add(skybox);
             degreesToRadians(5)
         );
         supAero1.add(aero);
+
+        var aero = createCubeColor(1, 0.1, 5, "#00ff08");
+        aero.position.set(-1, 0, 0.52);
+        aero.rotation.set(
+            degreesToRadians(90),
+            degreesToRadians(90),
+            degreesToRadians(5)
+        );
+        supAero1.add(aero);
+
+        var aero2 = createCubeColor(1, 0.1, 5);
+        aero2.position.set(-1, 0, 0.52);
+        aero2.rotation.set(
+            degreesToRadians(90),
+            degreesToRadians(90),
+            degreesToRadians(5)
+        );
+
+        //textura aerofolio
+        
+        var texture = textureLoader.load('assets/neon.jpg');
+        aero2.material.map = texture;
+        supAero1.add(aero2);
+
         
         
        
@@ -553,6 +641,21 @@ scene.add(skybox);
             degreesToRadians(0)
         );
         supportFrontCube.add(bico);
+        
+        //textura bico
+        var bico2 = createCubeColor(0.85, 0.08, 2.15);
+        bico2.position.set(0, 0.6, 0.98);
+        bico2.rotation.set(
+            degreesToRadians(-67.6),
+            degreesToRadians(0),
+            degreesToRadians(0)
+        );
+        
+        var texture2 = textureLoader.load('assets/nebula.jpg');
+        bico2.material.map = texture2;
+        supportFrontCube.add(bico2);
+
+
 
         //tampo
         var tampo = createCubeColor(0.5, 1.99, 1, "#3e403e");
@@ -568,15 +671,19 @@ scene.add(skybox);
 
         //detalhes das laterais
 
-        var detLeft = createCylinder(0.5, 0.5, 1, 3, "#00ba03");
+        var detLeft = createCylinder(0.5, 0.5, 1, 3);
         detLeft.position.set(0, 1.2, 0.04);
         detLeft.rotation.set(degreesToRadians(30), 0, degreesToRadians(90));
         mainCube.add(detLeft);
 
-        var detRight = createCylinder(0.5, 0.5, 1, 3, "#00ba03");
+        var detRight = createCylinder(0.5, 0.5, 1, 3);
         detRight.position.set(0, -1.2, -0.04);
         detRight.rotation.set(degreesToRadians(-30), 0, degreesToRadians(90));
         mainCube.add(detRight);
+
+        textureDets = textureLoader.load('assets/neon2.jpg');
+        detLeft.material.map = textureDets;
+        detRight.material.map = textureDets;
 
         let kart = {};
         kart.corpo = mainCube;
@@ -634,13 +741,15 @@ scene.add(skybox);
 
         cylinder.add(leftWheel);
         cylinder.add(rightWheel);
-
+        var textureWheels = textureLoader.load('assets/wheels.jpg');
+        leftWheel.material.map = textureWheels;
+        rightWheel.material.map = textureWheels;   
         let wheels = {
             cylinder,
             leftWheel,
             rightWheel,
         };
-
+        
         return wheels;
     }
 
@@ -652,10 +761,10 @@ scene.add(skybox);
         var points = [];
 
         //base
-        points.push(new THREE.Vector3(value + 5, value + 35, 0));
+        points.push(new THREE.Vector3(value + 5, value + 5, 0));
         points.push(new THREE.Vector3(value + 2, -value - 35, 0));
        points.push(new THREE.Vector3(-value - 25, -value - 0, 0));
-        points.push(new THREE.Vector3(value + 30, value + 15, 0)); //<-
+        points.push(new THREE.Vector3(value + 30, value + 5, 0)); //<-
        points.push(new THREE.Vector3(value + 30, value + 5, 0));//
        points.push(new THREE.Vector3(-value - 40, value + 5, 0));
        points.push(new THREE.Vector3(+value + 30, value + 5, 0));
@@ -664,10 +773,10 @@ scene.add(skybox);
         points.push(new THREE.Vector3(-value - 45, -value - 25, 0));//
 
         //partes mais altas
-        points.push(new THREE.Vector3(value + 35, 5, 19));
+        points.push(new THREE.Vector3(value + 25, 5, 19));
         points.push(new THREE.Vector3(-5, -5, value + 35));
-        points.push(new THREE.Vector3(-value - 40, 10, 30));
-        points.push(new THREE.Vector3(-value - 40, 10, 30));
+        points.push(new THREE.Vector3(-value - 25, 10, 30));
+        points.push(new THREE.Vector3(-value - 25, 10, 30));
         points.push(new THREE.Vector3(5, -value - 19, 25));
         points.push(new THREE.Vector3(-value - 20, -value - 25, 28));
         points.push(new THREE.Vector3(value + 20, -value - 20, 28));
@@ -682,11 +791,11 @@ scene.add(skybox);
 
     function criaMontanhas() {
         // Gera nuvem de pontos para cada montanha
-        var localPointsUm = generatePoints(40);
-        var localPointsDois = generatePoints(15);
+        var localPointsUm = generatePoints(25);
+        var localPointsDois = generatePoints(10);
         var localPointsTres = generatePoints(20);
-        var localPointsCinco = generatePoints(5);
-        var localPointsSeis = generatePoints(10);
+        var localPointsCinco = generatePoints(10);
+        var localPointsSeis = generatePoints(20);
         // Constroi a geometria com as nuvens de ponto
         convexGeometry = new THREE.ConvexBufferGeometry(localPointsUm);
         convexGeometry2 = new THREE.ConvexBufferGeometry(localPointsDois);
@@ -702,22 +811,22 @@ scene.add(skybox);
 
         var montanhaMaiorDois = new THREE.Mesh(convexGeometry2, mountainMaterial);
         montanhaMaiorDois.visible = true;
-        montanhaMaiorDois.position.set(50, 20, 0);
+        montanhaMaiorDois.position.set(50, 0, 0);
         montanhaMaiorDois.castShadow = true;
 
         var montanhaMaiorTres = new THREE.Mesh(convexGeometry3, mountainMaterial);
         montanhaMaiorTres.visible = true;
-        montanhaMaiorTres.position.set(-0, 20, 0);
+        montanhaMaiorTres.position.set(-30, 8, 0);
         montanhaMaiorTres.castShadow = true;
 
         var montanhaMenorUm = new THREE.Mesh(convexGeometry5, mountainMaterial);
         montanhaMenorUm.visible = true;
-        montanhaMenorUm.position.set(360, 170, 0);
+        montanhaMenorUm.position.set(350, 80, 0);
         montanhaMenorUm.castShadow = true;
 
         var montanhaMenorDois = new THREE.Mesh(convexGeometry4, mountainMaterial);
         montanhaMenorDois.visible = true;
-        montanhaMenorDois.position.set(390, 200, 0);
+        montanhaMenorDois.position.set(314, 80, 0);
         montanhaMenorDois.castShadow = true;
 
         montanhas.push(montanhaMaiorUm);
@@ -969,9 +1078,9 @@ scene.add(skybox);
         directionalLight.shadow.camera.right = 350;
         directionalLight.shadow.camera.top = 350;
         directionalLight.shadow.camera.bottom = -350;
-        directionalLight.target.position.set(0, 0, 0);
+        directionalLight.target.position.set(20, 50, 20); // mudei rapidao tava tudo 0
         directionalLight.shadow.camera.far = 1000;
-        directionalLight.intensity = 5;
+        directionalLight.intensity = 4;
         return directionalLight;
     }
 

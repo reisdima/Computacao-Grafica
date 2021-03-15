@@ -1,0 +1,74 @@
+# Blender MTL File: 'bus stop.blend'
+# Material Count: 6
+
+newmtl TT_checker_512x512_COLOR_GRID
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump Textures_Bus\\TT_checker_512x512_COLOR_GRID_Normal.png
+map_Kd Textures_Bus\\TT_checker_512x512_COLOR_GRID_Base_Color.png
+map_Ns Textures_Bus\\TT_checker_512x512_COLOR_GRID_Roughness.png
+refl Textures_Bus\\TT_checker_512x512_COLOR_GRID_Metallic.png
+
+newmtl glass
+Ns 812.249999
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+
+newmtl lamp
+Ns 900.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.066807 0.066807 0.066807
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+
+newmtl plate
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump Textures_Bus\\plate_Normal.png
+map_Kd Textures_Bus\\plate_Base_Color.png
+map_Ns Textures_Bus\\plate_Roughness.png
+refl Textures_Bus\\plate_Metallic.png
+
+newmtl stolb
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump Textures_Bus\\stolb_Normal.png
+map_Kd Textures_Bus\\stolb_Base_Color.png
+map_Ns Textures_Bus\\stolb_Roughness.png
+refl Textures_Bus\\stolb_Metallic.png
+
+newmtl Материал.001
+Ns 323.999994
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
