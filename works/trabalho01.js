@@ -477,7 +477,7 @@ scene.add(skybox);
     // funcao para criar o kart e suas partes
     function createKart() {
         var textureLoader = new THREE.TextureLoader();
-        var mainCube = createCubeColor(4, 2, 1);
+        var mainCube = createCubeColor(4, 2, 1,"#3e403e");
         mainCube.position.copy(kartProps.initialPosition);
 
         //separacao pro banco
