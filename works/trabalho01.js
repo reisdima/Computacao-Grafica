@@ -42,8 +42,8 @@ function main() {
     plane.receiveShadow = true;
 
 
-    var planeGeometry2 = new THREE.PlaneGeometry(1000, 1000, 40, 40);
-    planeGeometry2.translate(0.0, 0.0, -0.1);
+    var planeGeometry2 = new THREE.PlaneGeometry(1400, 1400, 40, 40);
+    planeGeometry2.translate(0.0, 0.0, -0.2);
     var planeMaterial2 = new THREE.MeshPhongMaterial({
         side: THREE.DoubleSide,
         polygonOffset: true,
@@ -52,16 +52,28 @@ function main() {
     });
     var plane2 = new THREE.Mesh(planeGeometry2, planeMaterial2);
     plane2.receiveShadow = true;
-   
+    scene.add(plane2);
      // TEXTURAS Plano
      var textureLoader = new THREE.TextureLoader();
      var stone = textureLoader.load('assets/pista.jpg');
      var sand = textureLoader.load('assets/sand.jpg');
-     plane.material.map = stone;
-     plane2.material.map = sand;
-     scene.add(plane);
-     scene.add(plane2);
+     setTexture(plane2, sand, 4,4);
+     //plane2.material.map = sand;
+     
+     setTexture(plane, stone, 1,1);
+     
 
+
+
+
+    function setTexture(component, texture, x, y) {
+        component.material.map = texture;
+        component.material.map.repeat.set(x, y);
+        component.material.map.wrapS = THREE.RepeatWrapping;
+        component.material.map.wrapT = THREE.RepeatWrapping;
+        component.material.map.minFilter = THREE.LinearFilter;
+        component.material.map.magFilter = THREE.LinearFilter;
+      }
     var wireframe = new THREE.WireframeGeometry(planeGeometry);
     var line = new THREE.LineSegments(wireframe);
     line.material.color.setStyle("rgb(180, 180, 180)");
@@ -71,13 +83,13 @@ function main() {
     //skybox 
 
     let vetorMaterial = [];
-    let texture_ft = new THREE.TextureLoader().load('assets/arid2_ft.jpg');
-    let texture_bk = new THREE.TextureLoader().load('assets/arid2_bk.jpg');
-    let texture_up = new THREE.TextureLoader().load('assets/arid2_up.jpg');
-    let texture_dn = new THREE.TextureLoader().load('assets/arid2_dn.jpg');
-    let texture_rt = new THREE.TextureLoader().load('assets/arid2_rt.jpg');
-    let texture_lf = new THREE.TextureLoader().load('assets/arid2_lf.jpg');
-  
+    let texture_ft = new THREE.TextureLoader().load('assets/penguins/bluecloud_ft.jpg');
+    let texture_bk = new THREE.TextureLoader().load('assets/penguins/bluecloud_bk.jpg');
+    let texture_up = new THREE.TextureLoader().load('assetspenguins/bluecloud_up.jpg');
+    let texture_dn = new THREE.TextureLoader().load('assets/penguins/bluecloud_dn.jpg');
+    let texture_rt = new THREE.TextureLoader().load('assets/penguins/bluecloud_rt.jpg');
+    let texture_lf = new THREE.TextureLoader().load('assets/penguins/bluecloud_lf.jpg');
+    
     vetorMaterial.push(new THREE.MeshPhongMaterial( { map: texture_ft }));
     vetorMaterial.push(new THREE.MeshPhongMaterial( { map: texture_bk }));
     vetorMaterial.push(new THREE.MeshPhongMaterial( { map: texture_up }));
@@ -85,14 +97,30 @@ function main() {
     vetorMaterial.push(new THREE.MeshPhongMaterial( { map: texture_rt }));
     vetorMaterial.push(new THREE.MeshPhongMaterial( { map: texture_lf }));
    
+    
 for (let i = 0; i < 6; i++)
 vetorMaterial[i].side = THREE.BackSide;
    
-let skyboxGeo = new THREE.BoxGeometry( 10000, 10000, 10000);
+let skyboxGeo = new THREE.BoxGeometry( 1400, 1400, 1400);
 let skybox = new THREE.Mesh( skyboxGeo, vetorMaterial );
+skybox.rotation.x = degreesToRadians(90);
 scene.add(skybox);
 
-   
+ /*
+
+const loader = new THREE.CubeTextureLoader();
+const texture = loader.load([
+    'assets/penguins/arid2_ft.jpg',// atras
+  'assets/penguins/arid2_bk.jpg', // frente do carro
+  'assets/penguins/arid2_lf.jpg', // na esquerda certo
+  'assets/penguins/arid2_rt.jpg',  // rt certo
+  'assets/penguins/arid2_up.jpg', // cima 
+  'assets/penguins/arid2_dn.jpg', // baixo
+  ,
+]);
+scene.background = texture;
+
+*/
     var center = new THREE.Vector3(0, 0, 1.75);
 
     var kartProps = {
@@ -935,6 +963,7 @@ scene.add(skybox);
             kart.position.copy(center);
             scene.remove(plane);
             scene.remove(plane2);
+            scene.remove(skybox);
 
             postes.forEach((poste) => {
                 scene.remove(poste);
@@ -943,15 +972,18 @@ scene.add(skybox);
                 scene.remove(montanha);
             });
             scene.remove(estatua);
+            scene.remove(pontoBus);
+            scene.remove(placaPare);
             trackballControls.reset();
             trackballControls.enabled = true;
             gameMode = false;
         } else {
             kart.position.copy(kartProps.currentPosition);
 
-
+            
             scene.add(plane);
             scene.add(plane2);
+            scene.add(skybox);
             postes.forEach((poste) => {
                 scene.add(poste);
             });
@@ -959,6 +991,8 @@ scene.add(skybox);
                 scene.add(montanha);
             });
             scene.add(estatua);
+            scene.add(pontoBus);
+            scene.add(placaPare);
             trackballControls.enabled = false;
             gameMode = true;
         }
