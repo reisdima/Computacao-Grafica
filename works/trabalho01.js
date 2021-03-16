@@ -4,6 +4,8 @@ function main() {
     var renderer = initRenderer();
     renderer.shadowMap.enabled = true;
     var spotLight = createSpotLight();
+    var light  = initDefaultLighting(scene, new THREE.Vector3(7, 7, 7));
+    light.enabled = false;
     var directionalLight = createDirectionalLight();
     var clock = new THREE.Clock();
     var keyboard = new KeyboardState();
@@ -142,7 +144,10 @@ scene.background = texture;
     var wheelsMaxRotation = 35;
     var cameraRotation = 0;
     var kartRotation = 0;
-    var gameMode = true;
+    // 0 - Modo de jogo
+    // 1 - Modo cockpit
+    // 2 - Modo inspeção 
+    var gameMode = 0;
 
     var kartBody = {};
 
@@ -310,12 +315,13 @@ scene.background = texture;
     function render() {
         stats.update(); // Update FPS
         keyboardUpdate();
-        if (gameMode) {
+        moveKart();
+        if (gameMode !== 2) {
             moveCamera(kart.position, kart.position, vectUp);
         } else {
+            lightFollowingCamera(light, camera);
             trackballControls.update(); // Enable mouse movements
         }
-        moveKart();
         information.changeMessage(
             "Pos: " +
                 kartProps.currentPosition.x.toFixed(1) +
@@ -794,7 +800,7 @@ scene.background = texture;
 
         let moveDistance = kartProps.currentSpeed * delta;
         kart.translateX(moveDistance); //mover kart
-        if (gameMode) {
+        if (gameMode !== 2) {
             kartProps.currentPosition.copy(kart.position);
         }
 
@@ -831,27 +837,6 @@ scene.background = texture;
             };
         })();
 
-        var obj = {
-            "Modo Jogo": function () {
-                if (gameMode) {
-                    scene.remove(plane);
-                    scene.remove(plane2);
-                    scene.remove(line);
-                 //   scene.remove(axesHelper);
-                    gameMode = false;
-                } else {
-                  //  scene.add(axesHelper);
-                    scene.add(plane);
-                    scene.add(plane2);
-                //   scene.add(line);
-                    gameMode = true;
-                }
-                resetKart();
-                cameraRotation = 0;
-                moveCamera(kart.position, kart.position, vectUp);
-            },
-        };
-
         // GUI interface
         var gui = new dat.GUI();
         // Movimento
@@ -880,42 +865,53 @@ scene.background = texture;
 
     //trocar modo de camera
     function changeMode() {
-        if (gameMode) {
-            kart.position.copy(center);
-            scene.remove(plane);
-            scene.remove(plane2);
-            scene.remove(skybox);
-
-            postes.forEach((poste) => {
-                scene.remove(poste);
-            });
-            montanhas.forEach((montanha) => {
-                scene.remove(montanha);
-            });
-            vetorObjetos.forEach((obj) => {
-                obj.visible = false;
-            });
-            trackballControls.reset();
-            trackballControls.enabled = true;
-            gameMode = false;
-        } else {
-            kart.position.copy(kartProps.currentPosition);
-
-            
-            scene.add(plane);
-            scene.add(plane2);
-            scene.add(skybox);
-            postes.forEach((poste) => {
-                scene.add(poste);
-            });
-            montanhas.forEach((montanha) => {
-                scene.add(montanha);
-            });
-            vetorObjetos.forEach((obj) => {
-                obj.visible = false;
-            });
-            trackballControls.enabled = false;
-            gameMode = true;
+        switch (gameMode) {
+            case 0:
+                gameMode = 1;
+                break;
+            case 1 :
+                // scene.add(light);
+                light.enabled = true;
+                kart.position.copy(center);
+                scene.remove(plane);
+                scene.remove(plane2);
+                scene.remove(skybox);
+                
+                postes.forEach((poste) => {
+                    scene.remove(poste);
+                });
+                montanhas.forEach((montanha) => {
+                    scene.remove(montanha);
+                });
+                vetorObjetos.forEach((obj) => {
+                    obj.visible = false;
+                });
+                trackballControls.reset();
+                trackballControls.enabled = true;
+                gameMode = 2;
+                break;
+                
+            case 2:
+                light.enabled = false;
+                // scene.remove(light);
+                kart.position.copy(kartProps.currentPosition);
+                scene.add(plane);
+                scene.add(plane2);
+                scene.add(skybox);
+                postes.forEach((poste) => {
+                    scene.add(poste);
+                });
+                montanhas.forEach((montanha) => {
+                    scene.add(montanha);
+                });
+                vetorObjetos.forEach((obj) => {
+                    obj.visible = false;
+                });
+                trackballControls.enabled = false;
+                gameMode = 0;
+                break;
+            default:
+                break;
         }
         kartProps.currentSpeed = 0;
         camera.position.z = 15;
@@ -955,7 +951,7 @@ scene.background = texture;
 
         let speedFactor = 1;
         // Velocidade e rotacao do Kart no modo jogo
-        if (gameMode) {
+        if (gameMode !== 2) {
             if (
                 keyboard.pressed("up") &&
                 kartProps.currentSpeed < kartProps.maxSpeed
