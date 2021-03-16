@@ -425,7 +425,7 @@ function main() {
         spotLight.castShadow = true;
         spotLight.visible = true;
 
-        spotLight.intensity = 0.6;
+        spotLight.intensity = 0.35;
         spotLight.position.set(0, 0, 3.5);
         spotLight.target = lightTarget;
         poste.add(spotLight); //troquei a pointlight por spotlight daniel
@@ -918,7 +918,7 @@ function main() {
                     scene.add(montanha);
                 });
                 vetorObjetos.forEach((obj) => {
-                    obj.visible = false;
+                    obj.visible = true;
                 });
 
                 trackballControls.enabled = false;
@@ -1044,7 +1044,7 @@ function main() {
         directionalLight.shadow.camera.bottom = -350;
         directionalLight.target.position.set(20, 50, 20); // mudei rapidao tava tudo 0
         directionalLight.shadow.camera.far = 1000;
-        directionalLight.intensity = 1;
+        directionalLight.intensity = 0.7;
         return directionalLight;
     }
 
@@ -1053,7 +1053,7 @@ function main() {
         spotLight.shadow.camera.fov = degreesToRadians(20);
     
         spotLight.decay = 2;
-        spotLight.intensity = 0.5;
+        spotLight.intensity = 0.25;
        // spotLight.penumbra = 0.05;
         spotLight.visible = true;
 
