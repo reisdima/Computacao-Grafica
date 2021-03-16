@@ -42,8 +42,8 @@ function main() {
     plane.receiveShadow = true;
 
 
-    var planeGeometry2 = new THREE.PlaneGeometry(1400, 1400, 40, 40);
-    planeGeometry2.translate(0.0, 0.0, -0.2);
+    var planeGeometry2 = new THREE.PlaneGeometry(1800, 1800, 40, 40);
+    planeGeometry2.translate(0.0, 0.0, -0.02);
     var planeMaterial2 = new THREE.MeshPhongMaterial({
         side: THREE.DoubleSide,
         polygonOffset: true,
@@ -52,27 +52,28 @@ function main() {
     });
     var plane2 = new THREE.Mesh(planeGeometry2, planeMaterial2);
     plane2.receiveShadow = true;
+    plane2.translateZ(-0.1);
     scene.add(plane2);
      // TEXTURAS Plano
      var textureLoader = new THREE.TextureLoader();
      var stone = textureLoader.load('assets/pista.jpg');
      var sand = textureLoader.load('assets/sand.jpg');
-     setTexture(plane2, sand, 4,4);
+     
+     setTextura(plane2, sand, 4,4);
      //plane2.material.map = sand;
+     setTextura(plane, stone, 1,1);
      
-     setTexture(plane, stone, 1,1);
-     
 
 
 
 
-    function setTexture(component, texture, x, y) {
-        component.material.map = texture;
-        component.material.map.repeat.set(x, y);
-        component.material.map.wrapS = THREE.RepeatWrapping;
-        component.material.map.wrapT = THREE.RepeatWrapping;
-        component.material.map.minFilter = THREE.LinearFilter;
-        component.material.map.magFilter = THREE.LinearFilter;
+    function setTextura(plano, textura, x, y) {
+        plano.material.map = textura;
+        plano.material.map.repeat.set(x, y);
+        plano.material.map.wrapS = THREE.RepeatWrapping;
+        plano.material.map.wrapT = THREE.RepeatWrapping;
+        plano.material.map.minFilter = THREE.LinearFilter;
+        plano.material.map.magFilter = THREE.LinearFilter;
       }
     var wireframe = new THREE.WireframeGeometry(planeGeometry);
     var line = new THREE.LineSegments(wireframe);
@@ -85,23 +86,23 @@ function main() {
     let vetorMaterial = [];
     let texture_ft = new THREE.TextureLoader().load('assets/penguins/bluecloud_ft.jpg');
     let texture_bk = new THREE.TextureLoader().load('assets/penguins/bluecloud_bk.jpg');
-    let texture_up = new THREE.TextureLoader().load('assetspenguins/bluecloud_up.jpg');
+    let texture_up = new THREE.TextureLoader().load('assets/penguins/bluecloud_up.jpg');
     let texture_dn = new THREE.TextureLoader().load('assets/penguins/bluecloud_dn.jpg');
     let texture_rt = new THREE.TextureLoader().load('assets/penguins/bluecloud_rt.jpg');
     let texture_lf = new THREE.TextureLoader().load('assets/penguins/bluecloud_lf.jpg');
     
-    vetorMaterial.push(new THREE.MeshPhongMaterial( { map: texture_ft }));
-    vetorMaterial.push(new THREE.MeshPhongMaterial( { map: texture_bk }));
-    vetorMaterial.push(new THREE.MeshPhongMaterial( { map: texture_up }));
-    vetorMaterial.push(new THREE.MeshPhongMaterial( { map: texture_dn }));
-    vetorMaterial.push(new THREE.MeshPhongMaterial( { map: texture_rt }));
-    vetorMaterial.push(new THREE.MeshPhongMaterial( { map: texture_lf }));
+    vetorMaterial.push(new THREE.MeshBasicMaterial( { map: texture_ft }));
+    vetorMaterial.push(new THREE.MeshBasicMaterial( { map: texture_bk }));
+    vetorMaterial.push(new THREE.MeshBasicMaterial( { map: texture_up }));
+    vetorMaterial.push(new THREE.MeshBasicMaterial( { map: texture_dn }));
+    vetorMaterial.push(new THREE.MeshBasicMaterial( { map: texture_rt }));
+    vetorMaterial.push(new THREE.MeshBasicMaterial( { map: texture_lf }));
    
     
 for (let i = 0; i < 6; i++)
 vetorMaterial[i].side = THREE.BackSide;
    
-let skyboxGeo = new THREE.BoxGeometry( 1400, 1400, 1400);
+let skyboxGeo = new THREE.BoxGeometry( 1800, 1800, 1800);
 let skybox = new THREE.Mesh( skyboxGeo, vetorMaterial );
 skybox.rotation.x = degreesToRadians(90);
 scene.add(skybox);
@@ -130,7 +131,7 @@ scene.background = texture;
         currentSpeed: 0,
         wheelsRotations: 6,
         acceleration: 1,
-        maxSpeed: 70,
+        maxSpeed: 120,
         rotationSpeed: 2,
         wheelsSpeedRotation: 6,
         brakeAccelerationFactor: 1.2,
@@ -175,14 +176,13 @@ scene.background = texture;
     // criacao dos postes de luz
     var postes = [];
     postes.push(createPoste(new THREE.Vector3(-210, -264, 10.5)));
-    postes.push(createPoste(new THREE.Vector3(4, 109, 10.5))); 
+    postes.push(createPoste(new THREE.Vector3(48, 150, 10.5))); 
     postes.push(createPoste(new THREE.Vector3(35, -264, 10.5))); 
     postes.push(createPoste(new THREE.Vector3(-56, -264, 10.5)));
     postes.push(createPoste(new THREE.Vector3(167, 335, 10.5))); 
     postes.push(createPoste(new THREE.Vector3(-169, 4, 10.5))); 
     postes.push(createPoste(new THREE.Vector3(-303, 302, 10.5))); 
     postes.push(createPoste(new THREE.Vector3(-122, -264, 10.5))); 
-
     postes.forEach((obj) => {
         scene.add(obj);
     });
@@ -333,10 +333,10 @@ scene.background = texture;
 
                     obj.rotation.set(
                         degreesToRadians(90),
-                        degreesToRadians(90),
+                        degreesToRadians(180),
                         0
                     );
-                    obj.position.set(222,-190, 0);
+                    obj.position.set(219,238, 0);
                     placaPare = obj;
                     placaPare.castShadow = true;
                     scene.add(placaPare);
@@ -477,8 +477,8 @@ scene.background = texture;
         lightSphere.translateY(12);
         poste.add(lightSphere);
 
-        let lightColor = "rgb(255,255,255)";
-        /*let pointLight = new THREE.PointLight(lightColor);
+        let lightColor = "rgb(255,255,255)";/*
+        let pointLight = new THREE.PointLight(lightColor);
         pointLight.translateY(12);
         pointLight.castShadow = true;
         pointLight.distance = 350;
@@ -487,7 +487,22 @@ scene.background = texture;
         pointLight.shadow.mapSize.width = 512; // default
         pointLight.shadow.mapSize.height = 512; // default
         pointLight.shadow.camera.near = 0.5; // default
-        pointLight.shadow.camera.far = 500; // default */
+        pointLight.shadow.camera.far = 500; // default */ 
+        const spotLight = new THREE.SpotLight(lightColor);
+        //spotLight.shadow.camera.fov = degreesToRadians(20);
+    
+        spotLight.shadow.mapSize.width = 1024;
+        spotLight.shadow.mapSize.height = 1024;
+  
+        spotLight.shadow.camera.near = 5;
+        spotLight.shadow.camera.far = 600;
+        spotLight.shadow.camera.fov = 30;
+
+        spotLight.castShadow = true;
+        spotLight.visible = true;
+
+        spotLight.intensity = 0.6;
+        spotLight.position.set(0, 0, 3.5);
         poste.add(spotLight); //troquei a pointlight por spotlight daniel
         poste.light = spotLight; // troquei a pointlight por spotlight daniel
 
@@ -1101,7 +1116,7 @@ scene.background = texture;
 
     function createDirectionalLight() {
         const directionalLight = new THREE.DirectionalLight("rgb(241,218,164)");
-        directionalLight.position.set(-37, -350, 40);
+        directionalLight.position.copy(new THREE.Vector3(1, 3, 200));
         directionalLight.shadow.mapSize.width = 2048;
         directionalLight.shadow.mapSize.height = 2048;
         directionalLight.castShadow = true;
@@ -1114,7 +1129,7 @@ scene.background = texture;
         directionalLight.shadow.camera.bottom = -350;
         directionalLight.target.position.set(20, 50, 20); // mudei rapidao tava tudo 0
         directionalLight.shadow.camera.far = 1000;
-        directionalLight.intensity = 4;
+        directionalLight.intensity = 1;
         return directionalLight;
     }
 
@@ -1123,8 +1138,8 @@ scene.background = texture;
         spotLight.shadow.camera.fov = degreesToRadians(20);
     
         spotLight.decay = 2;
-        spotLight.intensity = 1;
-        spotLight.penumbra = 0.05;
+        spotLight.intensity = 0.5;
+       // spotLight.penumbra = 0.05;
         spotLight.visible = true;
 
         spotLight.position.set(0, 0, 0);
