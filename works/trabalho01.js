@@ -18,20 +18,20 @@ function main() {
         y: 0,
         z: 1,
     };
-    moveCamera(cameraPosition, cameraDirection, vectUp);
-
+    
     // Enable mouse rotation, pan, zoom etc.
     var trackballControls = new THREE.TrackballControls(
         camera,
         renderer.domElement
     );
-
+    trackballControls.enabled = false;
+    
     // Mostra eixos
     //var axesHelper = new THREE.AxesHelper(12);
     //scene.add(axesHelper);
-
+    
     //Inicio Criacao do Plano
-
+    
     var planeGeometry = new THREE.PlaneGeometry(700, 700, 40, 40);
     planeGeometry.translate(0.0, 0.0, -0.02);
     var planeMaterial = new THREE.MeshPhongMaterial({
@@ -101,29 +101,29 @@ function main() {
     vetorMaterial.push(new THREE.MeshBasicMaterial( { map: texture_lf }));
    
     
-for (let i = 0; i < 6; i++)
-vetorMaterial[i].side = THREE.BackSide;
-   
-let skyboxGeo = new THREE.BoxGeometry( 1800, 1800, 1800);
-let skybox = new THREE.Mesh( skyboxGeo, vetorMaterial );
-skybox.rotation.x = degreesToRadians(90);
-scene.add(skybox);
+    for (let i = 0; i < 6; i++)
+    vetorMaterial[i].side = THREE.BackSide;
+    
+    let skyboxGeo = new THREE.BoxGeometry( 1800, 1800, 1800);
+    let skybox = new THREE.Mesh( skyboxGeo, vetorMaterial );
+    skybox.rotation.x = degreesToRadians(90);
+    scene.add(skybox);
 
- /*
+    /*
 
-const loader = new THREE.CubeTextureLoader();
-const texture = loader.load([
-    'assets/penguins/arid2_ft.jpg',// atras
-  'assets/penguins/arid2_bk.jpg', // frente do carro
-  'assets/penguins/arid2_lf.jpg', // na esquerda certo
-  'assets/penguins/arid2_rt.jpg',  // rt certo
-  'assets/penguins/arid2_up.jpg', // cima 
-  'assets/penguins/arid2_dn.jpg', // baixo
-  ,
-]);
-scene.background = texture;
+    const loader = new THREE.CubeTextureLoader();
+    const texture = loader.load([
+        'assets/penguins/arid2_ft.jpg',// atras
+    'assets/penguins/arid2_bk.jpg', // frente do carro
+    'assets/penguins/arid2_lf.jpg', // na esquerda certo
+    'assets/penguins/arid2_rt.jpg',  // rt certo
+    'assets/penguins/arid2_up.jpg', // cima 
+    'assets/penguins/arid2_dn.jpg', // baixo
+    ,
+    ]);
+    scene.background = texture;
 
-*/
+    */
     var center = new THREE.Vector3(0, 0, 1.75);
 
     var kartProps = {
@@ -139,6 +139,10 @@ scene.background = texture;
         brakeAccelerationFactor: 1.2,
         rotateAngle: 2,
     };
+
+    var cameraProps = {
+        zoom: 50
+    }
 
     var wheelsRotation = 0;
     var wheelsMaxRotation = 35;
@@ -157,6 +161,7 @@ scene.background = texture;
     scene.add(spotLight);
     spotLight.target = kart;
     scene.add(directionalLight);
+    moveCamera(cameraPosition, cameraDirection, vectUp);
 
     //--------------------------------- Criar Montanhas //---------------------------------//
 
@@ -915,6 +920,7 @@ scene.background = texture;
                 vetorObjetos.forEach((obj) => {
                     obj.visible = false;
                 });
+
                 trackballControls.enabled = false;
                 gameMode = 0;
                 break;
@@ -938,7 +944,6 @@ scene.background = texture;
             changeMode();
             return;
         }
-
         // Atualiza valores de rotação de rodas e define a direção
         if (keyboard.pressed("left")) {
             direction = -1;
@@ -1002,7 +1007,7 @@ scene.background = texture;
     function moveCamera(position, look, up, origin = false) {
         var rotY = Math.sin(cameraRotation);
         var rotX = Math.cos(cameraRotation);
-        var distance = 50;
+        var distance = cameraProps.zoom ?? 50;
         camera.position.x = position.x - distance * rotX;
         camera.position.y = position.y - distance * rotY;
 
@@ -1057,4 +1062,10 @@ scene.background = texture;
 
         return spotLight;
     }
+
+    document.addEventListener( 'wheel', (event) => {
+        if(gameMode !== 2)
+            cameraProps.zoom += event.deltaY/50;
+    });
+    
 }
