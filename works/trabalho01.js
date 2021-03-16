@@ -152,12 +152,13 @@ function main() {
     // 0 - Modo de jogo
     // 1 - Modo cockpit
     // 2 - Modo inspeção 
-    var gameMode = 0;
+    var gameMode = 1;
 
     var kartBody = {};
 
     kartBody = createKart();
     var kart = kartBody.corpo;
+    var cockpitPosition = kartBody.cockpitPoint;
     scene.add(kart);
     scene.add(spotLight);
     spotLight.target = kart;
@@ -186,17 +187,17 @@ function main() {
 
     // criacao dos postes de luz
     var postes = [];
-    postes.push(createPoste(new THREE.Vector3(48, 150, 10), -90)); 
-    postes.push(createPoste(new THREE.Vector3(-210, -264, 10)));
-    postes.push(createPoste(new THREE.Vector3(35, -264, 10))); 
-    postes.push(createPoste(new THREE.Vector3(-56, -264, 10)));
-    postes.push(createPoste(new THREE.Vector3(167, 335, 10), 180)); 
-    postes.push(createPoste(new THREE.Vector3(-169, 4, 10))); 
-    postes.push(createPoste(new THREE.Vector3(-303, 302, 10), -120)); 
-    postes.push(createPoste(new THREE.Vector3(-122, -264, 10))); 
-    postes.forEach((obj) => {
-        scene.add(obj);
-    });
+    // postes.push(createPoste(new THREE.Vector3(48, 150, 10), -90)); 
+    // postes.push(createPoste(new THREE.Vector3(-210, -264, 10)));
+    // postes.push(createPoste(new THREE.Vector3(35, -264, 10))); 
+    // postes.push(createPoste(new THREE.Vector3(-56, -264, 10)));
+    // postes.push(createPoste(new THREE.Vector3(167, 335, 10), 180)); 
+    // postes.push(createPoste(new THREE.Vector3(-169, 4, 10))); 
+    // postes.push(createPoste(new THREE.Vector3(-303, 302, 10), -120)); 
+    // postes.push(createPoste(new THREE.Vector3(-122, -264, 10))); 
+    // postes.forEach((obj) => {
+    //     scene.add(obj);
+    // });
 
      // Carrega o objeto externo e o atribui a uma variável
     
@@ -204,12 +205,12 @@ function main() {
     var vetorObjetos = new Array();
 
      //var estatua = null;
-     loadOBJFile(scene, vetorObjetos, "assets/", "Format_obj", true, 25, -157, 83, 90, -90);
-     //var placaPare = null;
-     loadOBJFile(scene, vetorObjetos, "assets/", "pare", true, 25,219,238,90,180);
+    //  loadOBJFile(scene, vetorObjetos, "assets/", "Format_obj", true, 25, -157, 83, 90, -90);
+    //  //var placaPare = null;
+    //  loadOBJFile(scene, vetorObjetos, "assets/", "pare", true, 25,219,238,90,180);
 
-     //var pontoBus = null;
-     loadOBJFile(scene, vetorObjetos, "assets/", "bus_stop", true, 50,-190,-33, 90, 90);
+    //  //var pontoBus = null;
+    //  loadOBJFile(scene, vetorObjetos, "assets/", "bus_stop", true, 50,-190,-33, 90, 90);
 
      scene.add(plane);
 
@@ -322,8 +323,17 @@ function main() {
         stats.update(); // Update FPS
         keyboardUpdate();
         moveKart();
-        if (gameMode !== 2) {
+        if (gameMode === 0) {
             moveCamera(kart.position, kart.position, vectUp);
+        } else if(gameMode === 1){
+            let newCameraPosition = new THREE.Vector3();
+            let newCameraLookAt = new THREE.Vector3();
+            cockpitPosition.localToWorld(newCameraPosition);
+            cockpitPosition.localToWorld(newCameraLookAt);
+            newCameraPosition.x -= 1;
+            // newCameraPosition.z += 5;
+
+            moveCamera(newCameraPosition, newCameraLookAt, vectUp);
         } else {
             lightFollowingCamera(light, camera);
             trackballControls.update(); // Enable mouse movements
@@ -654,7 +664,13 @@ function main() {
         detLeft.material.map = textureDets;
         detRight.material.map = textureDets;
 
+        // let cockpitPoint = new THREE.Object3D();
+        var cockpitPoint = createCubeColor(1, 0.1, 5, "#00ff08");
+        cockpitPoint.position.set(10, 0, 2);
+        mainCube.add(cockpitPoint);
+
         let kart = {};
+        kart.cockpitPoint = cockpitPoint;
         kart.corpo = mainCube;
         kart.eixoFrontal = frontWheels;
 
@@ -1006,16 +1022,29 @@ function main() {
 
     // funcao utilizada para manter a posicao da camera
     function moveCamera(position, look, up, origin = false) {
-        var rotY = Math.sin(cameraRotation);
-        var rotX = Math.cos(cameraRotation);
-        var distance = cameraProps.zoom ?? 50;
-        camera.position.x = position.x - distance * rotX;
-        camera.position.y = position.y - distance * rotY;
+        let rotation = gameMode === 0 ? cameraRotation : cameraRotation * 0.5
+        let rotY = Math.sin(cameraRotation);
+        let rotX = Math.cos(cameraRotation);
+        let distance = gameMode === 0 ? cameraProps.zoom : 12;
+        if(gameMode == 0){
+
+            camera.position.x = position.x - distance * rotX;
+            camera.position.y = position.y - distance * rotY;
+        } else {
+            camera.position.x = position.x - distance * rotX;
+            camera.position.y = position.y - distance * rotY;
+            // camera.position.x = position.x;
+            // camera.position.y = position.y;
+            camera.position.z = position.z;
+        }
+
 
         camera.lookAt(look);
         camera.up.set(up.x, up.y, up.z);
         spotLight.position.copy(camera.position);
     }
+
+
     function showInformation() {
         var secundaryBox = new SecondaryBox("...");
         secundaryBox.changeMessage(
