@@ -61,8 +61,9 @@ function main() {
      var stone = textureLoader.load('assets/pista.jpg');
      var sand = textureLoader.load('assets/sand.jpg');
      
-     setTextura(plane2, sand, 4,4);
-     //plane2.material.map = sand;
+     setTextura(plane2, sand, 9.5,9.5);
+    //plane2.material.map = sand;
+    
      setTextura(plane, stone, 1,1);
      
 
@@ -185,14 +186,14 @@ function main() {
 
     // criacao dos postes de luz
     var postes = [];
-    postes.push(createPoste(new THREE.Vector3(48, 150, 10.5), -90)); 
-    postes.push(createPoste(new THREE.Vector3(-210, -264, 10.5)));
-    postes.push(createPoste(new THREE.Vector3(35, -264, 10.5))); 
-    postes.push(createPoste(new THREE.Vector3(-56, -264, 10.5)));
-    postes.push(createPoste(new THREE.Vector3(167, 335, 10.5), 180)); 
-    postes.push(createPoste(new THREE.Vector3(-169, 4, 10.5))); 
-    postes.push(createPoste(new THREE.Vector3(-303, 302, 10.5), -120)); 
-    postes.push(createPoste(new THREE.Vector3(-122, -264, 10.5))); 
+    postes.push(createPoste(new THREE.Vector3(48, 150, 10), -90)); 
+    postes.push(createPoste(new THREE.Vector3(-210, -264, 10)));
+    postes.push(createPoste(new THREE.Vector3(35, -264, 10))); 
+    postes.push(createPoste(new THREE.Vector3(-56, -264, 10)));
+    postes.push(createPoste(new THREE.Vector3(167, 335, 10), 180)); 
+    postes.push(createPoste(new THREE.Vector3(-169, 4, 10))); 
+    postes.push(createPoste(new THREE.Vector3(-303, 302, 10), -120)); 
+    postes.push(createPoste(new THREE.Vector3(-122, -264, 10))); 
     postes.forEach((obj) => {
         scene.add(obj);
     });
@@ -424,8 +425,8 @@ function main() {
 
         spotLight.castShadow = true;
         spotLight.visible = true;
-
-        spotLight.intensity = 0.35;
+        spotLight.penumbra = 0.4;
+        spotLight.intensity = 0.4;
         spotLight.position.set(0, 0, 3.5);
         spotLight.target = lightTarget;
         poste.add(spotLight); //troquei a pointlight por spotlight daniel
@@ -1031,7 +1032,7 @@ function main() {
 
     function createDirectionalLight() {
         const directionalLight = new THREE.DirectionalLight("rgb(241,218,164)");
-        directionalLight.position.copy(new THREE.Vector3(1, 3, 200));
+        directionalLight.position.copy(new THREE.Vector3(10, 3, 200));
         directionalLight.shadow.mapSize.width = 2048;
         directionalLight.shadow.mapSize.height = 2048;
         directionalLight.castShadow = true;
