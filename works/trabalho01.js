@@ -180,13 +180,13 @@ scene.background = texture;
 
     // criacao dos postes de luz
     var postes = [];
+    postes.push(createPoste(new THREE.Vector3(48, 150, 10.5), -90)); 
     postes.push(createPoste(new THREE.Vector3(-210, -264, 10.5)));
-    postes.push(createPoste(new THREE.Vector3(48, 150, 10.5))); 
     postes.push(createPoste(new THREE.Vector3(35, -264, 10.5))); 
     postes.push(createPoste(new THREE.Vector3(-56, -264, 10.5)));
-    postes.push(createPoste(new THREE.Vector3(167, 335, 10.5))); 
+    postes.push(createPoste(new THREE.Vector3(167, 335, 10.5), 180)); 
     postes.push(createPoste(new THREE.Vector3(-169, 4, 10.5))); 
-    postes.push(createPoste(new THREE.Vector3(-303, 302, 10.5))); 
+    postes.push(createPoste(new THREE.Vector3(-303, 302, 10.5), -120)); 
     postes.push(createPoste(new THREE.Vector3(-122, -264, 10.5))); 
     postes.forEach((obj) => {
         scene.add(obj);
@@ -379,15 +379,22 @@ scene.background = texture;
 
     
     // cria objeto poste e adiciona luz
-    function createPoste(position) {
+    function createPoste(position, rotation = 0) {
         var poste = createCylinder(0.5, 0.5, 20, 0, "rgb(200,200,200)");
         poste.castShadow = true;
-        poste.rotation.set(degreesToRadians(90), 0, 0);
+        poste.rotation.set(degreesToRadians(90), degreesToRadians(rotation), 0);
         poste.position.copy(position);
 
         let lightSphere = createSphere(2, "yellow"); //.translateZ(10);
         lightSphere.translateY(12);
         poste.add(lightSphere);
+
+        // let lightTarget = createCubeColor(4, 2, 1,"#3e403e");
+        let lightTarget = new THREE.Object3D();
+        lightTarget.translateY(-10);
+        lightTarget.translateZ(-50);
+        // lightTarget.translateX(2);
+        poste.add(lightTarget);
 
         let lightColor = "rgb(255,255,255)";/*
         let pointLight = new THREE.PointLight(lightColor);
@@ -415,6 +422,7 @@ scene.background = texture;
 
         spotLight.intensity = 0.6;
         spotLight.position.set(0, 0, 3.5);
+        spotLight.target = lightTarget;
         poste.add(spotLight); //troquei a pointlight por spotlight daniel
         poste.light = spotLight; // troquei a pointlight por spotlight daniel
 
