@@ -1032,7 +1032,7 @@ function main() {
 
     function createDirectionalLight() {
         const directionalLight = new THREE.DirectionalLight("rgb(241,218,164)");
-        directionalLight.position.copy(new THREE.Vector3(10, 3, 200));
+        directionalLight.position.copy(new THREE.Vector3(0 , -150, 50));
         directionalLight.shadow.mapSize.width = 2048;
         directionalLight.shadow.mapSize.height = 2048;
         directionalLight.castShadow = true;
@@ -1043,8 +1043,8 @@ function main() {
         directionalLight.shadow.camera.right = 350;
         directionalLight.shadow.camera.top = 350;
         directionalLight.shadow.camera.bottom = -350;
-        directionalLight.target.position.set(20, 50, 20); // mudei rapidao tava tudo 0
-        directionalLight.shadow.camera.far = 1000;
+        directionalLight.target.position.set(0, 0, 0);
+        directionalLight.shadow.camera.far = 2000;
         directionalLight.intensity = 0.7;
         return directionalLight;
     }
