@@ -189,13 +189,16 @@ scene.background = texture;
 
      // Carrega o objeto externo e o atribui a uma variável
     
-     var estatua = null;
-     loadOBJFile("assets/", "Format_obj", true, 25);
-     var placaPare = null;
-     loadOBJFile2("assets/", "pare", true, 25);
 
-     var pontoBus = null;
-     loadOBJFile3("assets/", "bus_stop", true, 50);
+    var vetorObjetos = new Array();
+
+     //var estatua = null;
+     loadOBJFile(scene, vetorObjetos, "assets/", "Format_obj", true, 25, -157, 83, 90, -90);
+     //var placaPare = null;
+     loadOBJFile(scene, vetorObjetos, "assets/", "pare", true, 25,219,238,90,180);
+
+     //var pontoBus = null;
+     loadOBJFile(scene, vetorObjetos, "assets/", "bus_stop", true, 50,-190,-33, 90, 90);
 
      scene.add(plane);
 
@@ -226,7 +229,7 @@ scene.background = texture;
         false
     );
    
-    function loadOBJFile(modelPath, modelName, visibility, desiredScale) {
+    function loadOBJFile(scene, vetorObjetos, modelPath, modelName, visibility, desiredScale, posicaoX, posicaoY, rotateX, rotateY) {
         currentModel = modelName;
 
         var manager = new THREE.LoadingManager();
@@ -258,14 +261,16 @@ scene.background = texture;
                     var obj = fixPosition(obj);
 
                     obj.rotation.set(
-                        degreesToRadians(90),
-                        degreesToRadians(-90),
-                        0
-                    );
-                    obj.position.set(-157, 187, 0);
-                    estatua = obj;
-                    estatua.castShadow = true;
-                    scene.add(estatua);
+                        degreesToRadians(rotateX),
+                        degreesToRadians(rotateY),
+                        0);
+
+                    obj.position.set(posicaoX, posicaoY, 0);
+                    scene.add(obj);
+                    obj.castShadow = true;
+                    vetorObjetos.push(obj);
+                    
+                    
                     
                 },
                 onProgress,
@@ -300,105 +305,6 @@ scene.background = texture;
         return obj;
     }
 
-    function loadOBJFile2(modelPath, modelName, visibility, desiredScale) {
-        currentModel = modelName;
-
-        var manager = new THREE.LoadingManager();
-
-        var mtlLoader = new THREE.MTLLoader(manager);
-        mtlLoader.setPath(modelPath);
-        mtlLoader.load(modelName + ".mtl", function (materials) {
-            materials.preload();
-
-            var objLoader = new THREE.OBJLoader(manager);
-            objLoader.setMaterials(materials);
-            objLoader.setPath(modelPath);
-            objLoader.load(
-                modelName + ".obj",
-                function (obj) {
-                    obj.name = modelName;
-                    obj.visible = visibility;
-                    // Set 'castShadow' property for each children of the group
-                    obj.traverse(function (child) {
-                        child.castShadow = true;
-                    });
-
-                    obj.traverse(function (node) {
-                        if (node.material)
-                            node.material.side = THREE.DoubleSide;
-                    });
-
-                    var obj = normalizeAndRescale(obj, desiredScale);
-                    var obj = fixPosition(obj);
-
-                    obj.rotation.set(
-                        degreesToRadians(90),
-                        degreesToRadians(180),
-                        0
-                    );
-                    obj.position.set(219,238, 0);
-                    placaPare = obj;
-                    placaPare.castShadow = true;
-                    scene.add(placaPare);
-                    
-                },
-                onProgress,
-                onError
-            );
-        });
-    }
-
-
-    function loadOBJFile3(modelPath, modelName, visibility, desiredScale) {
-        currentModel = modelName;
-
-        var manager = new THREE.LoadingManager();
-
-        var mtlLoader = new THREE.MTLLoader(manager);
-        mtlLoader.setPath(modelPath);
-        mtlLoader.load(modelName + ".mtl", function (materials) {
-            materials.preload();
-
-            var objLoader = new THREE.OBJLoader(manager);
-            objLoader.setMaterials(materials);
-            objLoader.setPath(modelPath);
-            objLoader.load(
-                modelName + ".obj",
-                function (obj) {
-                    obj.name = modelName;
-                    obj.visible = visibility;
-                    // Set 'castShadow' property for each children of the group
-                    obj.traverse(function (child) {
-                        child.castShadow = true;
-                    });
-
-                    obj.traverse(function (node) {
-                        if (node.material)
-                            node.material.side = THREE.DoubleSide;
-                    });
-
-                    var obj = normalizeAndRescale(obj, desiredScale);
-                    var obj = fixPosition(obj);
-
-                    obj.rotation.set(
-                        degreesToRadians(90),
-                        degreesToRadians(90),
-                        0
-                    );
-                    obj.position.set(-190,-33, 0);
-                    pontoBus = obj;
-                    pontoBus.castShadow = true;
-                    scene.add(pontoBus);
-                    
-                },
-                onProgress,
-                onError
-            );
-        });
-    }
-
-   
-   
 
     render();
     function render() {
@@ -986,9 +892,9 @@ scene.background = texture;
             montanhas.forEach((montanha) => {
                 scene.remove(montanha);
             });
-            scene.remove(estatua);
-            scene.remove(pontoBus);
-            scene.remove(placaPare);
+            vetorObjetos.forEach((obj) => {
+                obj.visible = false;
+            });
             trackballControls.reset();
             trackballControls.enabled = true;
             gameMode = false;
@@ -1005,9 +911,9 @@ scene.background = texture;
             montanhas.forEach((montanha) => {
                 scene.add(montanha);
             });
-            scene.add(estatua);
-            scene.add(pontoBus);
-            scene.add(placaPare);
+            vetorObjetos.forEach((obj) => {
+                obj.visible = false;
+            });
             trackballControls.enabled = false;
             gameMode = true;
         }
