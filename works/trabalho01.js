@@ -328,10 +328,8 @@ function main() {
         } else if(gameMode === 1){
             let newCameraPosition = new THREE.Vector3();
             let newCameraLookAt = new THREE.Vector3();
-            cockpitPosition.localToWorld(newCameraPosition);
-            cockpitPosition.localToWorld(newCameraLookAt);
-            newCameraPosition.x -= 1;
-            // newCameraPosition.z += 5;
+            cockpitPosition.getWorldPosition(newCameraPosition);
+            cockpitPosition.getWorldPosition(newCameraLookAt);
 
             moveCamera(newCameraPosition, newCameraLookAt, vectUp);
         } else {
@@ -664,8 +662,8 @@ function main() {
         detLeft.material.map = textureDets;
         detRight.material.map = textureDets;
 
-        // let cockpitPoint = new THREE.Object3D();
-        var cockpitPoint = createCubeColor(1, 0.1, 5, "#00ff08");
+        let cockpitPoint = new THREE.Object3D();    
+        // var cockpitPoint = createCubeColor(1, 0.1, 5, "#00ff08");
         cockpitPoint.position.set(10, 0, 2);
         mainCube.add(cockpitPoint);
 
@@ -919,6 +917,8 @@ function main() {
                 trackballControls.reset();
                 trackballControls.enabled = true;
                 gameMode = 2;
+                camera.position.z = 15;
+                moveCamera(kart.position, kart.position, vectUp, true);
                 break;
                 
             case 2:
@@ -946,7 +946,7 @@ function main() {
         }
         kartProps.currentSpeed = 0;
         camera.position.z = 15;
-        moveCamera(kart.position, kart.position, vectUp, true);
+        // moveCamera(kart.position, kart.position, vectUp, true);
     }
 
     // Funcao responsavel pelos comandos com teclado
@@ -1027,9 +1027,9 @@ function main() {
         let rotX = Math.cos(cameraRotation);
         let distance = gameMode === 0 ? cameraProps.zoom : 12;
         if(gameMode == 0){
-
             camera.position.x = position.x - distance * rotX;
             camera.position.y = position.y - distance * rotY;
+
         } else {
             camera.position.x = position.x - distance * rotX;
             camera.position.y = position.y - distance * rotY;
